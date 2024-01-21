@@ -15,7 +15,6 @@
 
     <script>
       window.onload = function () {
-        function initializeScene() {
           const routeData = JSON.parse(localStorage.getItem('routeData'));
           console.log('Start Location:', routeData.startLocation);
           console.log('End Location:', routeData.endLocation);
@@ -68,13 +67,6 @@
           createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]).removeAttribute('arjs-threshold');
           createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]).removeAttribute('arjs-threshold');
         }
-
-        // Initialize the scene on page load
-        initializeScene();
-
-        // Set interval to refresh the scene every 3 seconds
-        setInterval(initializeScene, 3000);
-      };
     </script>
   </a-scene>
 </body>
