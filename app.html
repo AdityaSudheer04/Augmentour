@@ -12,62 +12,60 @@
 <body>
   <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
     <a-camera gps-camera rotation-reader></a-camera>
+  </a-scene>
 
-    <script>
-      window.onload = function () {
-        const routeData = JSON.parse(localStorage.getItem('routeData'));
-        console.log('Start Location:', routeData.startLocation);
-        console.log('End Location:', routeData.endLocation);
+  <script>
+    window.onload = function () {
+      const routeData = JSON.parse(localStorage.getItem('routeData'));
+      console.log('Start Location:', routeData.startLocation);
+      console.log('End Location:', routeData.endLocation);
 
-        // Function to calculate distance between two coordinates using Haversine formula
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-          const R = 6371; // Radius of the Earth in kilometers
-          const dLat = (lat2 - lat1) * (Math.PI / 180);
-          const dLon = (lon2 - lon1) * (Math.PI / 180);
-          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          const distance = R * c * 1000; // Convert distance to meters
-          return distance;
-        }
+      // Function to calculate distance between two coordinates using Haversine formula
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c * 1000; // Convert distance to meters
+        return distance;
+      }
 
-        // Function to create a box at a specific location
-        function createBox(color, scale, latitude, longitude) {
+      // Loop through each detailed route detail and create boxes for intersections
+      routeData.detailedRouteDetails.forEach((step, index) => {
+        step.intersections.forEach((intersection, i) => {
+          // Create <a-box> element
           const box = document.createElement('a-box');
-          box.setAttribute('color', color);
-          box.setAttribute('scale', scale);
-          box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
+
+          // Set box attributes
+          box.setAttribute('color', 'red');
+          box.setAttribute('scale', '50 50 50');
+
+          // Set position using GPS coordinates
+          box.setAttribute('gps-entity-place', `latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}`);
+
+          // Check distance and display/hide the box accordingly
+          navigator.geolocation.watchPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLon = position.coords.longitude;
+            const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
+          if (distance <= 5) {
+
+            box.setAttribute('visible', true);
+          } else {
+            box.setAttribute('visible', false);
+          }
+
+          // Append the box to the scene
           document.querySelector('a-scene').appendChild(box);
-          return box;
-        }
 
-        // Loop through each detailed route detail and create boxes for intersections
-        routeData.detailedRouteDetails.forEach((step, index) => {
-          step.intersections.forEach((intersection, i) => {
-            createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
-
-            // Check distance and display/hide the box accordingly
-            navigator.geolocation.watchPosition((position) => {
-              const userLat = position.coords.latitude;
-              const userLon = position.coords.longitude;
-              const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
-
-              if (distance <= 5) {
-                box.setAttribute('visible', true);
-              } else {
-                box.setAttribute('visible', false);
-              }
-            });
           });
         });
-
-        // Create spheres for starting and ending locations
-        createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]);
-        createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]);
-      };
-    </script>
-  </a-scene>
+      });
+    };
+  </script>
 </body>
 
 </html>
