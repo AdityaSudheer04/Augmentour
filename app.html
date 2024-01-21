@@ -10,24 +10,18 @@
 </head>
 
 <body>
-  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
-    renderer='antialias: true; alpha: true'>
+  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
     <a-camera gps-camera rotation-reader></a-camera>
 
     <script>
       window.onload = function () {
-        let testEntityAdded = false;
-        const el = document.querySelector("a-camera");
+        function initializeScene() {
+          const routeData = JSON.parse(localStorage.getItem('routeData'));
+          console.log('Start Location:', routeData.startLocation);
+          console.log('End Location:', routeData.endLocation);
 
-        el.addEventListener("gps-camera-update-position", e => {
-          if (!testEntityAdded) {
-            alert(`Got first GPS position: lon ${e.detail.position.longitude} lat ${e.detail.position.latitude}`);
-
-            const routeData = JSON.parse(localStorage.getItem('routeData'));
-            console.log('Start Location:', routeData.startLocation);
-            console.log('End Location:', routeData.endLocation);
-
-            function calculateDistance(lat1, lon1, lat2, lon2) {
+          // Function to calculate distance between two coordinates using Haversine formula
+          function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in kilometers
             const dLat = (lat2 - lat1) * (Math.PI / 180);
             const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -38,43 +32,48 @@
             const distance = R * c * 1000; // Convert distance to meters
             return distance;
           }
-            function createBox(color, scale, latitude, longitude) {
-              const box = document.createElement('a-box');
-              box.setAttribute('color', color);
-              box.setAttribute('scale', scale);
-              box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
-              document.querySelector('a-scene').appendChild(box);
-              return box;
-            }
 
-            routeData.detailedRouteDetails.forEach((step, index) => {
-              step.intersections.forEach((intersection, i) => {
-                const box = createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
+          // Function to create a box at a specific location
+          function createBox(color, scale, latitude, longitude) {
+            const box = document.createElement('a-box');
+            box.setAttribute('color', color);
+            box.setAttribute('scale', scale);
+            box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
+            box.setAttribute('arjs-threshold', '15'); // Set the threshold for visibility (adjust as needed)
+            document.querySelector('a-scene').appendChild(box);
+            return box;
+          }
 
-                navigator.geolocation.watchPosition((position) => {
-                  const userLat = position.coords.latitude;
-                  const userLon = position.coords.longitude;
-                  const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
+          // Loop through each detailed route detail and create boxes for intersections
+          routeData.detailedRouteDetails.forEach((step, index) => {
+            step.intersections.forEach((intersection, i) => {
+              createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
 
-                  if (distance <= 10) {
-                    box.setAttribute('visible', true);
-                  } else {
-                    box.setAttribute('visible', false);
-                  }
-                });
+              // Check distance and display/hide the box accordingly
+              navigator.geolocation.watchPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+                const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
+
+                if (distance <= 5) {
+                  box.setAttribute('visible', true);
+                } else {
+                  box.setAttribute('visible', false);
+                }
               });
             });
+          });
 
-            createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]);
-            createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]);
+          // Create spheres for starting and ending locations without 5-meter visibility policy
+          createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]).removeAttribute('arjs-threshold');
+          createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]).removeAttribute('arjs-threshold');
+        }
 
-            testEntityAdded = true;
-          }
-        });
+        // Initialize the scene on page load
+        initializeScene();
 
-        setInterval(() => {
-          testEntityAdded = false;
-        }, 3000); // Reset the flag every 3 seconds to allow re-evaluation of proximity
+        // Set interval to refresh the scene every 3 seconds
+        setInterval(initializeScene, 3000);
       };
     </script>
   </a-scene>
