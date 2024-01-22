@@ -72,13 +72,13 @@
           routeData.detailedRouteDetails.forEach((step, index) => {
             step.intersections.forEach((intersection, i) => {
               const box = createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
-              box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
+              box.setAttribute('arjs-threshold', '15'); // Set the threshold for visibility (adjust as needed)
 
               // Check distance and display/hide the box accordingly
               updateUserLocation(position); // Update user location in the loop
               const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
 
-              if (distance <= 200) {
+              if (distance <= 10) {
                 box.setAttribute('visible', true);
               } else {
                 box.setAttribute('visible', false);
@@ -93,6 +93,20 @@
             position.coords.latitude,
           ];
           userMarker.setLngLat(updatedUserLocation);
+
+          // Update the visibility of each box based on the new user location
+          routeData.detailedRouteDetails.forEach((step, index) => {
+            step.intersections.forEach((intersection, i) => {
+              const box = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
+              const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
+
+              if (distance <= 10) {
+                box.setAttribute('visible', true);
+              } else {
+                box.setAttribute('visible', false);
+              }
+            });
+          });
         }
 
         function errorLocation(error) {
@@ -104,7 +118,8 @@
           box.setAttribute('color', color);
           box.setAttribute('scale', scale);
           box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
-          box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
+          box.setAttribute('arjs-threshold', '15'); // Set the threshold for visibility (adjust as needed)
+          box.setAttribute('visible', 'false'); // Set initial visibility to false
           document.querySelector('a-scene').appendChild(box);
           return box;
         }
