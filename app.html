@@ -38,7 +38,7 @@
             box.setAttribute('color', color);
             box.setAttribute('scale', scale);
             box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
-            box.setAttribute('arjs-threshold', '15'); // Set the threshold for visibility (adjust as needed)
+            box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
             document.querySelector('a-scene').appendChild(box);
             return box;
           }
@@ -48,7 +48,7 @@
         const userLon = position.coords.longitude;
         const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
 
-        if (distance <= 60) {
+        if (distance <= 200) {
           box.setAttribute('visible', true);
         } else {
           box.setAttribute('visible', false);
@@ -59,7 +59,7 @@
          routeData.detailedRouteDetails.forEach((step, index) => {
       step.intersections.forEach((intersection, i) => {
         const box = createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
-        box.setAttribute('arjs-threshold', '70'); // Set the threshold for visibility (adjust as needed)
+        box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
 
         // Check distance and display/hide the box accordingly
         navigator.geolocation.watchPosition(createWatchCallback(box, intersection));
