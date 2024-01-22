@@ -38,7 +38,6 @@
             box.setAttribute('color', color);
             box.setAttribute('scale', scale);
             box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
-            box.setAttribute('arjs-threshold', '15'); // Set the threshold for visibility (adjust as needed)
             document.querySelector('a-scene').appendChild(box);
             return box;
           }
@@ -52,8 +51,8 @@
           });
 
           // Create spheres for starting and ending locations without 5-meter visibility policy
-          createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]).removeAttribute('arjs-threshold');
-          createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]).removeAttribute('arjs-threshold');
+          createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]);
+          createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]);
         }
     </script>
   </a-scene>
