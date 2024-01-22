@@ -67,7 +67,13 @@
               enableHighAccuracy: true,
             }
           );
+          const startBox = createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]).removeAttribute('arjs-threshold');
+          const endBox = createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]).removeAttribute('arjs-threshold');
 
+          // Set initial visibility of blue boxes
+          startBox.setAttribute('visible', 'true');
+          endBox.setAttribute('visible', 'true');
+          
           // Call updateUserLocation within the loop to update the user's location for each box
           routeData.detailedRouteDetails.forEach((step, index) => {
             step.intersections.forEach((intersection, i) => {
