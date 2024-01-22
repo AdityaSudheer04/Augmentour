@@ -7,69 +7,113 @@
   <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
   <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
   <script src="https://rawgit.com/nicolocarpignoli/nicolocarpignoli.github.io/master/ar-click-events/events.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js"></script>
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css"
+    rel="stylesheet"
+  />
 </head>
 
 <body>
-  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
+  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
+    renderer='antialias: true; alpha: true'>
     <a-camera gps-camera rotation-reader></a-camera>
 
     <script>
       window.onload = function () {
-          const routeData = JSON.parse(localStorage.getItem('routeData'));
-          console.log('Start Location:', routeData.startLocation);
-          console.log('End Location:', routeData.endLocation);
+        let map;
+        let userMarker;
+        const routeData = JSON.parse(localStorage.getItem('routeData'));
+        console.log('Start Location:', routeData.startLocation);
+        console.log('End Location:', routeData.endLocation);
 
-          // Function to calculate distance between two coordinates using Haversine formula
-          function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of the Earth in kilometers
-            const dLat = (lat2 - lat1) * (Math.PI / 180);
-            const dLon = (lon2 - lon1) * (Math.PI / 180);
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c * 1000; // Convert distance to meters
-            return distance;
-          }
-
-          // Function to create a box at a specific location
-          function createBox(color, scale, latitude, longitude) {
-            const box = document.createElement('a-box');
-            box.setAttribute('color', color);
-            box.setAttribute('scale', scale);
-            box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
-            box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
-            document.querySelector('a-scene').appendChild(box);
-            return box;
-          }
-          function createWatchCallback(box, intersection) {
-      return function (position) {
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
-        const distance = calculateDistance(userLat, userLon, intersection.location[1], intersection.location[0]);
-
-        if (distance <= 200) {
-          box.setAttribute('visible', true);
-        } else {
-          box.setAttribute('visible', false);
+        // Function to calculate distance between two coordinates using Haversine formula
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+          const R = 6371; // Radius of the Earth in kilometers
+          const dLat = (lat2 - lat1) * (Math.PI / 180);
+          const dLon = (lon2 - lon1) * (Math.PI / 180);
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distance = R * c * 1000; // Convert distance to meters
+          return distance;
         }
+
+        function setupMap(center) {
+          map = new mapboxgl.Map({
+            container: "map",
+            style: "mapbox://styles/mapbox/streets-v11",
+            center: center,
+            zoom: 15,
+          });
+        }
+
+        function successLocation(position) {
+          const userLocation = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ];
+          setupMap(userLocation);
+
+          // Add a marker at the user's current location
+          userMarker = new mapboxgl.Marker().setLngLat(userLocation).addTo(map);
+
+          // Watch for changes in the user's position
+          navigator.geolocation.watchPosition(
+            updateUserLocation,
+            errorLocation,
+            {
+              enableHighAccuracy: true,
+            }
+          );
+
+          // Call updateUserLocation within the loop to update the user's location for each box
+          routeData.detailedRouteDetails.forEach((step, index) => {
+            step.intersections.forEach((intersection, i) => {
+              const box = createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
+              box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
+
+              // Check distance and display/hide the box accordingly
+              updateUserLocation(position); // Update user location in the loop
+              const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
+
+              if (distance <= 200) {
+                box.setAttribute('visible', true);
+              } else {
+                box.setAttribute('visible', false);
+              }
+            });
+          });
+        }
+
+        function updateUserLocation(position) {
+          const updatedUserLocation = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ];
+          userMarker.setLngLat(updatedUserLocation);
+        }
+
+        function errorLocation(error) {
+          console.error('Error getting user location:', error);
+        }
+
+        function createBox(color, scale, latitude, longitude) {
+          const box = document.createElement('a-box');
+          box.setAttribute('color', color);
+          box.setAttribute('scale', scale);
+          box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
+          box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
+          document.querySelector('a-scene').appendChild(box);
+          return box;
+        }
+
+        // Get initial user location
+        navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+          enableHighAccuracy: true,
+        });
       };
-    }
-
-         routeData.detailedRouteDetails.forEach((step, index) => {
-      step.intersections.forEach((intersection, i) => {
-        const box = createBox('red', '10 10 10', intersection.location[1], intersection.location[0]);
-        box.setAttribute('arjs-threshold', '205'); // Set the threshold for visibility (adjust as needed)
-
-        // Check distance and display/hide the box accordingly
-        navigator.geolocation.watchPosition(createWatchCallback(box, intersection));
-      });
-    });
-
-          // Create spheres for starting and ending locations without 5-meter visibility policy
-          createBox('blue', '10 10 10', routeData.startLocation[1], routeData.startLocation[0]).removeAttribute('arjs-threshold');
-          createBox('blue', '10 10 10', routeData.endLocation[1], routeData.endLocation[0]).removeAttribute('arjs-threshold');
-        }
     </script>
   </a-scene>
 </body>
