@@ -34,7 +34,7 @@
 
           // Function to create a box at a specific location
           function createBox(color, scale, latitude, longitude) {
-            const box = document.createElement('a-box');
+            const box = document.createElement('a-sphere');
             box.setAttribute('color', color);
             box.setAttribute('scale', scale);
             box.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
