@@ -44,8 +44,12 @@
             step.intersections.forEach((intersection, i) => {
               const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
               const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
-              const scale = Math.min(1, 10 / distance);
-              sphere.setAttribute('scale', `${scale} ${scale} ${scale}`);
+
+              // Adjust the scaling factor dynamically
+              const scaleFactor = Math.min(1, 40 / distance);
+              const scale = `${scaleFactor} ${scaleFactor} ${scaleFactor}`;
+
+              sphere.setAttribute('scale', scale);
             });
           });
         }
@@ -65,7 +69,7 @@
         // Create spheres initially
         routeData.detailedRouteDetails.forEach((step, index) => {
           step.intersections.forEach((intersection, i) => {
-            createSphere('red', '1 1 1', intersection.location[1], intersection.location[0]);
+            createSphere('red', '0.5 0.5 0.5', intersection.location[1], intersection.location[0]);
           });
         });
 
