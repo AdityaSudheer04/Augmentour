@@ -11,7 +11,7 @@
 <body>
   <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
     renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera rotation-reader></a-camera>
+    <a-camera gps-camera rotation-reader gps-camera-update-position></a-camera>
 
     <script>
       window.onload = function () {
@@ -19,7 +19,7 @@
         console.log('Start Location:', routeData.startLocation);
         console.log('End Location:', routeData.endLocation);
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
+        function haversine(lat1, lon1, lat2, lon2) {
           const R = 6371; // Radius of the Earth in kilometers
           const dLat = (lat2 - lat1) * (Math.PI / 180);
           const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -44,10 +44,10 @@
         function updateSpheresVisibility(position) {
           routeData.detailedRouteDetails.forEach((step, index) => {
             step.intersections.forEach((intersection, i) => {
-              const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
+              const distance = haversine(position.latitude, position.longitude, intersection.location[1], intersection.location[0]);
 
-              // Only render spheres within a certain radius (e.g., 20 meters)
-              const isVisible = distance <= 20;
+              // Only render spheres within a certain radius (e.g., 50 meters)
+              const isVisible = distance <= 50;
               const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
 
               // Toggle visibility based on distance
@@ -67,16 +67,16 @@
         routeData.detailedRouteDetails.forEach((step, index) => {
           step.intersections.forEach((intersection, i) => {
             // Only create spheres within a certain radius initially
-            const distance = calculateDistance(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
-            if (distance <= 20) {
-              createSphere('red', '20 20 20', intersection.location[1], intersection.location[0]);
+            const distance = haversine(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
+            if (distance <= 50) {
+              createSphere('red', '5 5 5', intersection.location[1], intersection.location[0]);
             }
           });
         });
 
         // Create spheres for starting and ending locations without 5-meter visibility policy
-        createSphere('blue', '20 20 20', routeData.startLocation[1], routeData.startLocation[0]);
-        createSphere('blue', '20 20 20', routeData.endLocation[1], routeData.endLocation[0]);
+        createSphere('blue', '5 5 5', routeData.startLocation[1], routeData.startLocation[0]);
+        createSphere('blue', '5 5 5', routeData.endLocation[1], routeData.endLocation[0]);
       };
     </script>
   </a-scene>
