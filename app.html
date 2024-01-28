@@ -48,7 +48,7 @@
               const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
 
               // Only render spheres within a certain radius (e.g., 20 meters)
-              const isVisible = distance <= 20;
+              const isVisible = distance <= 100;
               const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
 
               // Toggle visibility based on distance
@@ -69,7 +69,7 @@
           step.intersections.forEach((intersection, i) => {
             // Only create spheres within a certain radius initially
             const distance = calculateDistance(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
-            if (distance <= 20) {
+            if (distance <= 100) {
               createSphere('red', '20 20 20', intersection.location[1], intersection.location[0]);
             }
           });
