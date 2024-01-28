@@ -9,7 +9,8 @@
 </head>
 
 <body>
-  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
+  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
+    renderer='antialias: true; alpha: true'>
     <a-camera gps-camera rotation-reader></a-camera>
 
     <script>
@@ -35,44 +36,47 @@
           sphere.setAttribute('color', color);
           sphere.setAttribute('scale', scale);
           sphere.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude}`);
+          sphere.setAttribute('visible', 'false'); // Initially set to false
           document.querySelector('a-scene').appendChild(sphere);
           return sphere;
         }
 
-        function updateSpheresSize(position) {
+        function updateSpheresVisibility(position) {
           routeData.detailedRouteDetails.forEach((step, index) => {
             step.intersections.forEach((intersection, i) => {
               const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
 
               // Only render spheres within a certain radius (e.g., 20 meters)
-              if (distance <= 20) {
-                const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
+              const isVisible = distance <= 20;
+              const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
 
-                // Adjust the scaling factor for faster growth
-                const scaleFactor = Math.min(50, 1 + (20 - distance) / 5); // Maximum scale is 50
-                const scale = `${scaleFactor} ${scaleFactor} ${scaleFactor}`;
-
-                sphere.setAttribute('scale', scale);
+              // Toggle visibility based on distance
+              if (sphere) {
+                sphere.setAttribute('visible', isVisible);
               }
             });
           });
         }
 
         document.querySelector("[gps-camera]").addEventListener("gps-camera-update-position", (e) => {
-          // When the camera's position updates, update the size of the spheres
-          updateSpheresSize(e.detail.position);
+          // When the camera's position updates, update the visibility of the spheres
+          updateSpheresVisibility(e.detail.position);
         });
 
         // Create spheres initially
         routeData.detailedRouteDetails.forEach((step, index) => {
           step.intersections.forEach((intersection, i) => {
-            createSphere('red', '1 1 1', intersection.location[1], intersection.location[0]);
+            // Only create spheres within a certain radius initially
+            const distance = calculateDistance(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
+            if (distance <= 20) {
+              createSphere('red', '20 20 20', intersection.location[1], intersection.location[0]);
+            }
           });
         });
 
         // Create spheres for starting and ending locations without 5-meter visibility policy
-        createSphere('blue', '1 1 1', routeData.startLocation[1], routeData.startLocation[0]);
-        createSphere('blue', '1 1 1', routeData.endLocation[1], routeData.endLocation[0]);
+        createSphere('blue', '20 20 20', routeData.startLocation[1], routeData.startLocation[0]);
+        createSphere('blue', '20 20 20', routeData.endLocation[1], routeData.endLocation[0]);
       };
     </script>
   </a-scene>
