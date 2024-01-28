@@ -12,7 +12,7 @@
 <body>
   <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;'
     renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera rotation-reader gps-camera-update-position></a-camera>
+    <a-camera gps-new-camera rotation-reader gps-camera-update-position></a-camera>
 
     <script>
       window.onload = function () {
@@ -72,7 +72,7 @@ function updateSpheresVisibility(position) {
 
 
 
-        document.querySelector("[gps-camera]").addEventListener("gps-camera-update-position", (e) => {
+        document.querySelector("[gps-new-camera]").addEventListener("gps-camera-update-position", (e) => {
           // When the camera's position updates, update the visibility of the spheres
           updateSpheresVisibility(e.detail.position);
         });
