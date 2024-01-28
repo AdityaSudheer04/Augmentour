@@ -32,32 +32,45 @@
           return distance;
         }
 
-        function createSphere(color, scale, latitude, longitude) {
-          const sphere = document.createElement('a-sphere');
-          sphere.setAttribute('color', color);
-          sphere.setAttribute('scale', scale);
-          sphere.setAttribute('gps-new-entity-place', {latitude:latitude, longitude: longitude});
-          sphere.setAttribute('visible', 'false'); // Initially set to false
-          document.querySelector('a-scene').appendChild(sphere);
-          return sphere;
-        }
+       function createSphere(color, scale, latitude, longitude) {
+  const sphere = document.createElement('a-entity');
+  sphere.setAttribute('geometry', {
+    primitive: 'sphere',
+    radius: 5
+  });
+  sphere.setAttribute('material', `color: ${color}`);
+  sphere.setAttribute('scale', scale);
+  sphere.setAttribute('gps-new-entity-place', {
+    latitude: latitude,
+    longitude: longitude
+  });
+  sphere.setAttribute('visible', 'false'); // Initially set to false
+  document.querySelector('a-scene').appendChild(sphere);
+  return sphere;
+}
 
-        function updateSpheresVisibility(position) {
-          routeData.detailedRouteDetails.forEach((step, index) => {
-            step.intersections.forEach((intersection, i) => {
-              const distance = haversine(position.latitude, position.longitude, intersection.location[1], intersection.location[0]);
+function updateSpheresVisibility(position) {
+  routeData.detailedRouteDetails.forEach((step, index) => {
+    step.intersections.forEach((intersection, i) => {
+      const distance = haversine(position.latitude, position.longitude, intersection.location[1], intersection.location[0]);
 
-              // Only render spheres within a certain radius (e.g., 50 meters)
-              const isVisible = distance <= 50;
-              const sphere = document.querySelector(`[gps-new-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
+      // Only render spheres within a certain radius (e.g., 50 meters)
+      const isVisible = distance <= 50;
+      const sphereSelector = `[gps-new-entity-place="latitude:${intersection.location[1]};longitude:${intersection.location[0]}"]`;
+      const existingSphere = document.querySelector(sphereSelector);
 
-              // Toggle visibility based on distance
-              if (sphere) {
-                sphere.setAttribute('visible', isVisible);
-              }
-            });
-          });
-        }
+      // If the sphere doesn't exist, create a new one
+      if (!existingSphere) {
+        createSphere('red', '5 5 5', intersection.location[1], intersection.location[0]);
+      } else {
+        // Toggle visibility based on distance
+        existingSphere.setAttribute('visible', isVisible);
+      }
+    });
+  });
+}
+
+
 
         document.querySelector("[gps-camera]").addEventListener("gps-camera-update-position", (e) => {
           // When the camera's position updates, update the visibility of the spheres
