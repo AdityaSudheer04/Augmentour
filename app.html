@@ -44,13 +44,26 @@
         function updateSpheresVisibility(position) {
           routeData.detailedRouteDetails.forEach((step, index) => {
             step.intersections.forEach((intersection, i) => {
+              // Check distance for initial spheres
               const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
 
-              // Only render spheres within a certain radius (e.g., 20 meters)
+              // Check distance for newly created spheres
+              for (let j = 1; j <= 5; j++) {
+                const fraction = j / 6; // Divide the distance into 6 parts (5 intervals)
+                const avgLatitude = intersection.location[1] + fraction * (step.intersections[i + 1].location[1] - intersection.location[1]);
+                const avgLongitude = intersection.location[0] + fraction * (step.intersections[i + 1].location[0] - intersection.location[0]);
+                const newSphere = document.querySelector(`[gps-entity-place="latitude: ${avgLatitude}; longitude: ${avgLongitude}"]`);
+
+                if (newSphere) {
+                  const newDistance = calculateDistance(position.coords.latitude, position.coords.longitude, avgLatitude, avgLongitude);
+                  newSphere.setAttribute('visible', newDistance <= 100);
+                }
+              }
+
+              // Toggle visibility for initial spheres based on distance
               const isVisible = distance <= 100;
               const sphere = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]}"]`);
 
-              // Toggle visibility based on distance
               if (sphere) {
                 sphere.setAttribute('visible', isVisible);
               }
@@ -70,7 +83,7 @@
             const distance = calculateDistance(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
             if (distance <= 100) {
               createSphere('red', '5 5 5', intersection.location[1], intersection.location[0]);
-              
+
               // Create additional spheres between existing intersections
               for (let j = 1; j <= 5; j++) {
                 const fraction = j / 6; // Divide the distance into 6 parts (5 intervals)
