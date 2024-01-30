@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -70,18 +69,25 @@
             // Only create spheres within a certain radius initially
             const distance = calculateDistance(routeData.startLocation[1], routeData.startLocation[0], intersection.location[1], intersection.location[0]);
             if (distance <= 100) {
-              createSphere('red', '20 20 20', intersection.location[1], intersection.location[0]);
+              createSphere('red', '5 5 5', intersection.location[1], intersection.location[0]);
+              
+              // Create additional spheres between existing intersections
+              for (let j = 1; j <= 5; j++) {
+                const fraction = j / 6; // Divide the distance into 6 parts (5 intervals)
+                const avgLatitude = intersection.location[1] + fraction * (step.intersections[i + 1].location[1] - intersection.location[1]);
+                const avgLongitude = intersection.location[0] + fraction * (step.intersections[i + 1].location[0] - intersection.location[0]);
+                createSphere('green', '5 5 5', avgLatitude, avgLongitude);
+              }
             }
           });
         });
 
         // Create spheres for starting and ending locations without 5-meter visibility policy
-        createSphere('blue', '20 20 20', routeData.startLocation[1], routeData.startLocation[0]);
-        createSphere('blue', '20 20 20', routeData.endLocation[1], routeData.endLocation[0]);
+        createSphere('blue', '5 5 5', routeData.startLocation[1], routeData.startLocation[0]);
+        createSphere('blue', '5 5 5', routeData.endLocation[1], routeData.endLocation[0]);
       };
     </script>
   </a-scene>
 </body>
 
 </html>
-
