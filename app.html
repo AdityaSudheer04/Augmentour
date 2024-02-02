@@ -10,7 +10,7 @@
 
 <body>
   <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
-    <a-camera gps-new-camera rotation-reader></a-camera>
+    <a-camera gps-new-camera='gpsMinDistance: 2'></a-camera>
 
     <script>
       window.onload = function () {
@@ -31,66 +31,67 @@
         }
 
         function updateMarkers(position) {
-          // Clear existing entities
-          document.querySelector("a-scene").innerHTML = "";
+  // Clear existing entities
+  document.querySelector("a-scene").innerHTML = "";
 
-          routeData.detailedRouteDetails.forEach((step, index) => {
-            step.intersections.forEach((intersection, i) => {
-              const poiEntity = document.createElement("a-entity");
-              poiEntity.setAttribute('gps-new-entity-place', {
-                latitude: intersection.location[1],
-                longitude: intersection.location[0],
-                gpsMinDistance: 20 // Adjust this value as needed
-              });
+  routeData.detailedRouteDetails.forEach((step, index) => {
+    step.intersections.forEach((intersection, i) => {
+      const poiEntity = document.createElement("a-entity");
+      poiEntity.setAttribute('gps-new-entity-place', {
+        latitude: intersection.location[1],
+        longitude: intersection.location[0],
+      });
 
-              const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
-              const visible = distance <= 20;
-              poiEntity.setAttribute('visible', visible);
+      const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
+      const visible = distance <= 20;
 
-              poiEntity.setAttribute("gltf-model", "url(./assets/models/map_pointer_3d_icon.glb)");
-              document.querySelector("a-scene").appendChild(poiEntity);
-            });
-          });
+      poiEntity.setAttribute('visible', visible);
 
-          const iEntity = document.createElement("a-entity");
-          iEntity.setAttribute('gps-new-entity-place', {
-            latitude: routeData.startLocation[1],
-            longitude: routeData.startLocation[0],
-            gpsMinDistance: 20
-          });
+      if (visible) {
+        poiEntity.setAttribute("gltf-model", "url(./assets/models/map_pointer_3d_icon.glb)");
+        document.querySelector("a-scene").appendChild(poiEntity);
+      }
+    });
+  });
 
-          iEntity.setAttribute("geometry", {
-            primitive: "sphere",
-            radius: 5
-          });
+  const iEntity = document.createElement("a-entity");
+  iEntity.setAttribute('gps-new-entity-place', {
+    latitude: routeData.startLocation[1],
+    longitude: routeData.startLocation[0],
+  });
 
-          iEntity.setAttribute("material", "color:blue");
+  iEntity.setAttribute("geometry", {
+    primitive: "sphere",
+    radius: 5
+  });
 
-          document.querySelector("a-scene").appendChild(iEntity);
+  iEntity.setAttribute("material", "color:blue");
 
-          const eEntity = document.createElement("a-entity");
-          eEntity.setAttribute('gps-new-entity-place', {
-            latitude: routeData.endLocation[1],
-            longitude: routeData.endLocation[0],
-            gpsMinDistance: 20
-          });
+  document.querySelector("a-scene").appendChild(iEntity);
 
-          eEntity.setAttribute("geometry", {
-            primitive: "sphere",
-            radius: 5
-          });
+  const eEntity = document.createElement("a-entity");
+  eEntity.setAttribute('gps-new-entity-place', {
+    latitude: routeData.endLocation[1],
+    longitude: routeData.endLocation[0],
+  });
 
-          eEntity.setAttribute("material", "color:blue");
+  eEntity.setAttribute("geometry", {
+    primitive: "sphere",
+    radius: 5
+  });
 
-          document.querySelector("a-scene").appendChild(eEntity);
-        }
+  eEntity.setAttribute("material", "color:blue");
 
-
+  document.querySelector("a-scene").appendChild(eEntity);
+}
         function error(err) {
           console.warn('ERROR(' + err.code + '): ' + err.message);
         }
-        // Initial call to set up the scene based on the user's current position
-        navigator.geolocation.watchPosition(updateMarkers, error, { enableHighAccuracy: true });
+      
+
+        document.querySelector("[gps-new-camera]").addEventListener("gps-camera-update-position", async(e) => {
+         updateMarkers(e.detail.position);
+       });
       };
     </script>
   </a-scene>
