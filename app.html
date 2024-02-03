@@ -27,7 +27,7 @@
           console.log("Start Location:", routeData.startLocation);
           console.log("End Location:", routeData.endLocation);
 
-           function calculateDistance(lat1, lon1, lat2, lon2) {
+          function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in kilometers
             const dLat = (lat2 - lat1) * (Math.PI / 180);
             const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -43,54 +43,83 @@
           }
 
           function updateSpheresSize(position) {
-            routeData.detailedRouteDetails.forEach((step, index) => {
-              step.intersections.forEach((intersection, i) => {
-                const distance = calculateDistance(
-                  position.latitude,
-                  position.longitude,
-                  intersection.location[1],
-                  intersection.location[0]
-                );
-                
-                // const poiEntity = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]"}]`);
-                const poiEntity = document.createElement("a-entity");
+    const allIntersections = [];
 
-                poiEntity.setAttribute("gps-new-entity-place", {
-                  latitude: intersection.location[1],
-                  longitude: intersection.location[0],
-                });
+    // Collect all intersection coordinates into the allIntersections array
+    routeData.detailedRouteDetails.forEach((step) => {
+      step.intersections.forEach((intersection) => {
+        allIntersections.push({
+          latitude: intersection.location[1],
+          longitude: intersection.location[0],
+        });
+      });
+    });
 
-                poiEntity.setAttribute(
-                  "gltf-model",
-                  "url(./assets/models/map_pointer_3d_icon.glb)"
-                );
-                document.querySelector("a-scene").appendChild(poiEntity);
-                // Only render spheres within a certain radius (e.g., 20 meters)
-                if (distance <= 20) {
-                  poiEntity.setAttribute("visible", "true");
-                } else {
-                  poiEntity.setAttribute("visible", "false");
-                }
-                 for (let j = 1; j <= 5; j++) {
-                      const fraction = j / 6; // Divide the distance into 6 parts (5 intervals)
-                      const avgLatitude = intersection.location[1] + fraction * (step.intersections[i + 1].location[1] - intersection.location[1]);
-                      const avgLongitude = intersection.location[0] + fraction * (step.intersections[i + 1].location[0] - intersection.location[0]);
-                     const newDistance = calculateDistance(position.latitude, position.longitude, avgLatitude, avgLongitude);
-                     // Create a marker for the additional point
-                       const visibility=newDistance<=20;
-                      const markerEntity = document.createElement("a-entity");
-                     markerEntity.setAttribute("gps-new-entity-place", {
-                      latitude: avgLatitude,
-                        longitude: avgLongitude,
-                    });
-                markerEntity.setAttribute("gltf-model", "url(./assets/models/map_pointer_3d_icon.glb)");
-                  document.querySelector("a-scene").appendChild(markerEntity);
-                    markerEntity.setAttribute("visible", visibility);
-                }
-              });
-            });
-          }
+    // Iterate over the allIntersections array to generate midpoint markers
+    allIntersections.forEach((intersection, i) => {
+      const distance = calculateDistance(
+        position.latitude,
+        position.longitude,
+        intersection.latitude,
+        intersection.longitude
+      );
 
+      const poiEntity = document.createElement("a-entity");
+      poiEntity.setAttribute("gps-new-entity-place", {
+        latitude: intersection.latitude,
+        longitude: intersection.longitude,
+      });
+      poiEntity.setAttribute(
+        "gltf-model",
+        "url(./assets/models/map_pointer_3d_icon.glb)"
+      );
+
+      document.querySelector("a-scene").appendChild(poiEntity);
+
+      // Only render spheres within a certain radius (e.g., 20 meters)
+      if (distance <= 20) {
+        poiEntity.setAttribute("visible", "true");
+      } else {
+        poiEntity.setAttribute("visible", "false");
+      }
+
+      // Calculate and add marker for midpoint (except for the last intersection)
+      if (i < allIntersections.length - 1) {
+        const nextIntersection = allIntersections[i + 1];
+        const midpointLat =
+          (intersection.latitude + nextIntersection.latitude) / 2;
+        const midpointLon =
+          (intersection.longitude + nextIntersection.longitude) / 2;
+
+        const midpointEntity = document.createElement("a-entity");
+        midpointEntity.setAttribute("gps-new-entity-place", {
+          latitude: midpointLat,
+          longitude: midpointLon,
+        });
+        midpointEntity.setAttribute(
+          "gltf-model",
+          "url(./assets/models/midpoint_marker.glb)"
+        );
+
+        // Only render midpoint marker within a certain radius (e.g., 20 meters)
+        const midpointDistance = calculateDistance(
+          position.latitude,
+          position.longitude,
+          midpointLat,
+          midpointLon
+        );
+        
+        document.querySelector("a-scene").appendChild(midpointEntity);
+        if (midpointDistance <= 20) {
+          midpointEntity.setAttribute("visible", "true");
+        } else {
+          midpointEntity.setAttribute("visible", "false");
+        }
+
+      }
+    });
+  }
+          
           document
             .querySelector("[gps-new-camera='gpsMinDistance: 2']")
             .addEventListener("gps-camera-update-position", (e) => {
