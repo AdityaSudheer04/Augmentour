@@ -1,100 +1,120 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>AR.js A-Frame Location-based</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"
+    ></script>
+  </head>
 
-<head>
-  <title>AR.js A-Frame Location-based</title>
-  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
-  <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
-</head>
+  <body>
+    <a-scene
+      vr-mode-ui="enabled: false"
+      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+      renderer="antialias: true; alpha: true"
+    >
+      <a-camera look-controls-enabled='false' arjs-device-orientation-controls='smoothingFactor: 0.1' gps-new-camera="gpsMinDistance: 2" rotation-reader></a-camera>
 
-<body>
-  <a-scene vr-mode-ui="enabled: false" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false;' renderer='antialias: true; alpha: true'>
-    <a-camera gps-new-camera='gpsMinDistance: 2'></a-camera>
+      <script>
+        window.onload = function () {
+          const routeData = JSON.parse(localStorage.getItem("routeData"));
+          console.log("Start Location:", routeData.startLocation);
+          console.log("End Location:", routeData.endLocation);
 
-    <script>
-      window.onload = function () {
-        const routeData = JSON.parse(localStorage.getItem('routeData'));
-        console.log('Start Location:', routeData.startLocation);
-        console.log('End Location:', routeData.endLocation);
+          function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in kilometers
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * (Math.PI / 180)) *
+                Math.cos(lat2 * (Math.PI / 180)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c * 1000; // Convert distance to meters
+            return distance;
+          }
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-          const R = 6371; // Radius of the Earth in kilometers
-          const dLat = (lat2 - lat1) * (Math.PI / 180);
-          const dLon = (lon2 - lon1) * (Math.PI / 180);
-          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          const distance = R * c * 1000; // Convert distance to meters
-          return distance;
-        }
+          function updateSpheresSize(position) {
+            routeData.detailedRouteDetails.forEach((step, index) => {
+              step.intersections.forEach((intersection, i) => {
+                const distance = calculateDistance(
+                  position.latitude,
+                  position.longitude,
+                  intersection.location[1],
+                  intersection.location[0]
+                );
 
-        function updateMarkers(position) {
-  // Clear existing entities
-  document.querySelector("a-scene").innerHTML = "";
+                // const poiEntity = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]"}]`);
+                const poiEntity = document.createElement("a-entity");
 
-  routeData.detailedRouteDetails.forEach((step, index) => {
-    step.intersections.forEach((intersection, i) => {
-      const poiEntity = document.createElement("a-entity");
-      poiEntity.setAttribute('gps-new-entity-place', {
-        latitude: intersection.location[1],
-        longitude: intersection.location[0],
-      });
+                poiEntity.setAttribute("gps-new-entity-place", {
+                  latitude: intersection.location[1],
+                  longitude: intersection.location[0],
+                });
 
-      const distance = calculateDistance(position.coords.latitude, position.coords.longitude, intersection.location[1], intersection.location[0]);
-      const visible = distance <= 20;
+                poiEntity.setAttribute(
+                  "gltf-model",
+                  "url(./assets/models/map_pointer_3d_icon.glb)"
+                );
+                document.querySelector("a-scene").appendChild(poiEntity);
+                // Only render spheres within a certain radius (e.g., 20 meters)
+                if (distance <= 20) {
+                  poiEntity.setAttribute("visible", "true");
+                } else {
+                  poiEntity.setAttribute("visible", "false");
+                }
+              });
+            });
+          }
 
-      poiEntity.setAttribute('visible', visible);
+          document
+            .querySelector("[gps-new-camera='gpsMinDistance: 2']")
+            .addEventListener("gps-camera-update-position", (e) => {
+              // When the camera's position updates, update the size of the spheres
+              updateSpheresSize(e.detail.position);
+            });
 
-      if (visible) {
-        poiEntity.setAttribute("gltf-model", "url(./assets/models/map_pointer_3d_icon.glb)");
-        document.querySelector("a-scene").appendChild(poiEntity);
-      }
-    });
-  });
+          const iEntity = document.createElement("a-entity");
 
-  const iEntity = document.createElement("a-entity");
-  iEntity.setAttribute('gps-new-entity-place', {
-    latitude: routeData.startLocation[1],
-    longitude: routeData.startLocation[0],
-  });
+          iEntity.setAttribute("gps-new-entity-place", {
+            latitude: routeData.startLocation[1],
+            longitude: routeData.startLocation[0],
+          });
 
-  iEntity.setAttribute("geometry", {
-    primitive: "sphere",
-    radius: 5
-  });
+          iEntity.setAttribute("geometry", {
+            primitive: "sphere",
+            radius: 5,
+          });
 
-  iEntity.setAttribute("material", "color:blue");
+          iEntity.setAttribute("material", "color:blue");
 
-  document.querySelector("a-scene").appendChild(iEntity);
+          document.querySelector("a-scene").appendChild(iEntity);
 
-  const eEntity = document.createElement("a-entity");
-  eEntity.setAttribute('gps-new-entity-place', {
-    latitude: routeData.endLocation[1],
-    longitude: routeData.endLocation[0],
-  });
+          const eEntity = document.createElement("a-entity");
 
-  eEntity.setAttribute("geometry", {
-    primitive: "sphere",
-    radius: 5
-  });
+          eEntity.setAttribute("gps-new-entity-place", {
+            latitude: routeData.endLocation[1],
+            longitude: routeData.endLocation[0],
+          });
 
-  eEntity.setAttribute("material", "color:blue");
+          eEntity.setAttribute("geometry", {
+            primitive: "sphere",
+            radius: 5,
+          });
 
-  document.querySelector("a-scene").appendChild(eEntity);
-}
-        function error(err) {
-          console.warn('ERROR(' + err.code + '): ' + err.message);
-        }
-      
+          eEntity.setAttribute("material", "color:blue");
 
-        document.querySelector("[gps-new-camera]").addEventListener("gps-camera-update-position", async(e) => {
-         updateMarkers(e.detail.position);
-       });
-      };
-    </script>
-  </a-scene>
-</body>
-
+          document.querySelector("a-scene").appendChild(eEntity);
+        };
+      </script>
+    </a-scene>
+  </body>
 </html>
