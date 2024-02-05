@@ -45,17 +45,39 @@
           function updateSpheresSize(position) {
     const allIntersections = [];
 
-    // Collect all intersection coordinates into the allIntersections array
-    routeData.detailedRouteDetails.forEach((step) => {
-      step.intersections.forEach((intersection) => {
-        allIntersections.push({
-          latitude: intersection.location[1],
-          longitude: intersection.location[0],
-        });
-      });
-    });
+    // Iterate over the detailedRouteDetails array to generate midpoint markers
+    routeData.detailedRouteDetails.forEach((step, i) => {
+      const intersection = {
+        latitude: step.intersections[0].location[1],
+        longitude: step.intersections[0].location[0],
+      };
 
-    // Iterate over the allIntersections array to generate midpoint markers
+      // Add the current intersection to the allIntersections array
+      allIntersections.push(intersection);
+
+      // Calculate and add marker for midpoint (except for the last intersection)
+      if (i < routeData.detailedRouteDetails.length - 1) {
+        const nextIntersection = routeData.detailedRouteDetails[i + 1].intersections[0];
+        const midpointLat = (intersection.latitude + nextIntersection.location[1]) / 2;
+        const midpointLon = (intersection.longitude + nextIntersection.location[0]) / 2;
+
+        // Add the midpoint to the allIntersections array
+        const midpoint = {
+          latitude: midpointLat,
+          longitude: midpointLon,
+        };
+        allIntersections.push(midpoint);
+      }
+    });
+     const firstIntersection = routeData.detailedRouteDetails[0].intersections[0];
+  const startMidpointLat = (firstIntersection.location[1] + routeData.startLocation[1]) / 2;
+  const startMidpointLon = (firstIntersection.location[0] + routeData.startLocation[0]) / 2;
+  const startMidpoint = {
+    latitude: startMidpointLat,
+    longitude: startMidpointLon,
+  };
+  allIntersections.push(startMidpoint);
+    // Iterate over the allIntersections array to generate markers
     allIntersections.forEach((intersection, i) => {
       const distance = calculateDistance(
         position.latitude,
@@ -81,41 +103,6 @@
         poiEntity.setAttribute("visible", "true");
       } else {
         poiEntity.setAttribute("visible", "false");
-      }
-
-      // Calculate and add marker for midpoint (except for the last intersection)
-      if (i < allIntersections.length - 1) {
-        const nextIntersection = allIntersections[i + 1];
-        const midpointLat =
-          (intersection.latitude + nextIntersection.latitude) / 2;
-        const midpointLon =
-          (intersection.longitude + nextIntersection.longitude) / 2;
-
-        const midpointEntity = document.createElement("a-entity");
-        midpointEntity.setAttribute("gps-new-entity-place", {
-          latitude: midpointLat,
-          longitude: midpointLon,
-        });
-        midpointEntity.setAttribute(
-          "gltf-model",
-          "url(./assets/models/midpoint_marker.glb)"
-        );
-
-        // Only render midpoint marker within a certain radius (e.g., 20 meters)
-        const midpointDistance = calculateDistance(
-          position.latitude,
-          position.longitude,
-          midpointLat,
-          midpointLon
-        );
-        
-        document.querySelector("a-scene").appendChild(midpointEntity);
-        if (midpointDistance <= 20) {
-          midpointEntity.setAttribute("visible", "true");
-        } else {
-          midpointEntity.setAttribute("visible", "false");
-        }
-
       }
     });
   }
