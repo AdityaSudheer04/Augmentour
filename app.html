@@ -98,8 +98,8 @@
 
       document.querySelector("a-scene").appendChild(poiEntity);
 
-      // Only render spheres within a certain radius (e.g., 20 meters)
-      if (distance <= 20) {
+      // Only render spheres within a certain radius (e.g., 1000 meters)
+      if (distance <= 1000) {
         poiEntity.setAttribute("visible", "true");
       } else {
         poiEntity.setAttribute("visible", "false");
