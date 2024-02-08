@@ -91,10 +91,10 @@
         latitude: intersection.latitude,
         longitude: intersection.longitude,
       });
-      poiEntity.setAttribute(
-        "gltf-model",
-        "url(./assets/models/direction_arrow.glb)"
-      );
+      poiEntity.setAttribute("gltf-model", {
+  url: "./assets/models/direction_arrow.glb",
+  scale: "20 20 20", 
+});
 
       document.querySelector("a-scene").appendChild(poiEntity);
 
