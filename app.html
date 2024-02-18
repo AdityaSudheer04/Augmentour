@@ -127,12 +127,10 @@
             longitude: routeData.startLocation[0],
           });
 
-          iEntity.setAttribute("geometry", {
-            primitive: "sphere",
-            radius: 5,
-          });
-
-          iEntity.setAttribute("material", "color:blue");
+           iEntity.setAttribute(
+                  "gltf-model",
+                  "url(./assets/models/map_pointer_3d_icon.glb)"
+          );
 
           document.querySelector("a-scene").appendChild(iEntity);
 
@@ -142,14 +140,10 @@
             latitude: routeData.endLocation[1],
             longitude: routeData.endLocation[0],
           });
-
-          eEntity.setAttribute("geometry", {
-            primitive: "sphere",
-            radius: 5,
-          });
-
-          eEntity.setAttribute("material", "color:blue");
-
+          eEntity.setAttribute(
+                  "gltf-model",
+                  "url(./assets/models/map_pointer_3d_icon.glb)"
+          );
           document.querySelector("a-scene").appendChild(eEntity);
         };
       </script>
