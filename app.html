@@ -43,69 +43,75 @@
           }
 
           function updateSpheresSize(position) {
-    const allIntersections = [];
+            routeData.detailedRouteDetails.forEach((step, index) => {
+              step.intersections.forEach((intersection, i) => {
+                const distance = calculateDistance(
+                  position.latitude,
+                  position.longitude,
+                  intersection.location[1],
+                  intersection.location[0]
+                );
 
-    // Iterate over the detailedRouteDetails array to generate midpoint markers
-    routeData.detailedRouteDetails.forEach((step, i) => {
-      const intersection = {
-        latitude: step.intersections[0].location[1],
-        longitude: step.intersections[0].location[0],
-      };
+                // const poiEntity = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]"}]`);
+                const poiEntity = document.createElement("a-entity");
 
-      // Add the current intersection to the allIntersections array
-      allIntersections.push(intersection);
+                poiEntity.setAttribute("gps-new-entity-place", {
+                  latitude: intersection.location[1],
+                  longitude: intersection.location[0],
+                });
 
-      // Calculate and add marker for midpoint (except for the last intersection)
-      if (i < routeData.detailedRouteDetails.length - 1) {
-        const nextIntersection = routeData.detailedRouteDetails[i + 1].intersections[0];
-        const midpointLat = (intersection.latitude + nextIntersection.location[1]) / 2;
-        const midpointLon = (intersection.longitude + nextIntersection.location[0]) / 2;
+                poiEntity.setAttribute(
+                  "gltf-model",
+                  "url(./assets/models/arrowNew.glb)"
+                );
+                poiEntity.setAttribute("rotation", "0 180 0");
+                document.querySelector("a-scene").appendChild(poiEntity);
+                // Only render spheres within a certain radius (e.g., 20 meters)
+                if (distance <= 20) {
+                  poiEntity.setAttribute("visible", "true");
+                } else {
+                  poiEntity.setAttribute("visible", "false");
+                }
 
-        // Add the midpoint to the allIntersections array
-        const midpoint = {
-          latitude: midpointLat,
-          longitude: midpointLon,
-        };
-        allIntersections.push(midpoint);
-      }
-    });
-     const firstIntersection = routeData.detailedRouteDetails[0].intersections[0];
-  const startMidpointLat = (firstIntersection.location[1] + routeData.startLocation[1]) / 2;
-  const startMidpointLon = (firstIntersection.location[0] + routeData.startLocation[0]) / 2;
-  const startMidpoint = {
-    latitude: startMidpointLat,
-    longitude: startMidpointLon,
-  };
-  allIntersections.push(startMidpoint);
-    // Iterate over the allIntersections array to generate markers
-    allIntersections.forEach((intersection, i) => {
-      const distance = calculateDistance(
-        position.latitude,
-        position.longitude,
-        intersection.latitude,
-        intersection.longitude
-      );
+                // Calculate and add marker for midpoint
+                if (i < step.intersections.length - 1) {
+                  const nextIntersection = step.intersections[i + 1];
+                  const midpointLat =
+                    (intersection.location[1] + nextIntersection.location[1]) /
+                    2;
+                  const midpointLon =
+                    (intersection.location[0] + nextIntersection.location[0]) /
+                    2;
 
-      const poiEntity = document.createElement("a-entity");
-      poiEntity.setAttribute("gps-new-entity-place", {
-        latitude: intersection.latitude,
-        longitude: intersection.longitude,
-      });
-      poiEntity.setAttribute("gltf-model", {
-  url: "./assets/models/direction_arrow.glb",
-  scale: "20 20 20", 
-});
+                  const midpointEntity = document.createElement("a-entity");
+                  midpointEntity.setAttribute("gps-new-entity-place", {
+                    latitude: midpointLat,
+                    longitude: midpointLon,
+                  });
+                  midpointEntity.setAttribute(
+                    "gltf-model",
+                    "url(./assets/models/arrowNew.glb)"
+                  );
+                  midpointEntity.setAttribute("rotation", "0 180 0");
 
-      document.querySelector("a-scene").appendChild(poiEntity);
+                  // Only render midpoint marker within a certain radius (e.g., 20 meters)
+                  const midpointDistance = calculateDistance(
+                    position.latitude,
+                    position.longitude,
+                    midpointLat,
+                    midpointLon
+                  );
+                  if (midpointDistance <= 20) {
+                    midpointEntity.setAttribute("visible", "true");
+                  } else {
+                    midpointEntity.setAttribute("visible", "false");
+                  }
 
-      // Only render spheres within a certain radius (e.g., 1000 meters)
-      if (distance <= 1000) {
-        poiEntity.setAttribute("visible", "true");
-      } else {
-        poiEntity.setAttribute("visible", "false");
-      }
-    });
-  }
+                  document.querySelector("a-scene").appendChild(midpointEntity);
+                }
+              });
+            });
+          }
           
           document
             .querySelector("[gps-new-camera='gpsMinDistance: 2']")
