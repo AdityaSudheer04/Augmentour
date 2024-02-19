@@ -90,14 +90,18 @@
                   const nextIntersection = step.intersections[i + 1];  
                   const { rotationX, rotationY } = calculateDirectionAndRotation(intersection, nextIntersection);
                    // Set rotation based on calculated direction
-                  poiEntity.setAttribute("rotation", `${rotationX} ${rotationY} 0`);
+                  const rotationXDeg = THREE.MathUtils.radToDeg(rotationX);
+                  const rotationYDeg = THREE.MathUtils.radToDeg(rotationY);
+                  poiEntity.setAttribute("rotation", `${rotationXDeg} ${rotationYDeg} 0`);
                 }
                 else if (i === step.intersections.length - 1 && index === routeData.detailedRouteDetails.length - 1) {
                   const { rotationX, rotationY } = calculateDirectionAndRotation(
                     { latitude: intersection.location[1], longitude: intersection.location[0] },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
                   );
-                  poiEntity.setAttribute("rotation", `${rotationX} ${rotationY} 0`);
+                  const rotationXDeg = THREE.MathUtils.radToDeg(rotationX);
+                  const rotationYDeg = THREE.MathUtils.radToDeg(rotationY);
+                  poiEntity.setAttribute("rotation", `${rotationXDeg} ${rotationYDeg} 0`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
                 // Only render spheres within a certain radius (e.g., 20 meters)
@@ -127,12 +131,14 @@
                     "gltf-model",
                     "url(./assets/models/arrowNew.glb)"
                   );
-                  const { rotationX, rotationY } = calculateDirectionAndRotation(
+                  const { rotationX1, rotationY1 } = calculateDirectionAndRotation(
                     { latitude: midpointLat, longitude: midpointLon },
                     { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
                   );
+                  const rotationXDeg1 = THREE.MathUtils.radToDeg(rotationX1);
+                  const rotationYDeg1 = THREE.MathUtils.radToDeg(rotationY1);
 
-                  midpointEntity.setAttribute("rotation", `${rotationX} ${rotationY} 0`);
+                  midpointEntity.setAttribute("rotation", `${rotationXDeg1} ${rotationYDeg1} 0`);
 
                   // Only render midpoint marker within a certain radius (e.g., 20 meters)
                   const midpointDistance = calculateDistance(
