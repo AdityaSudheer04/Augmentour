@@ -139,6 +139,7 @@
                 // Only render spheres within a certain radius (e.g., 4000 meters)
                 
                 if (distance <= 4000) {
+                  console.log(instruction);
                   speakInstruction(instruction);
                   poiEntity.setAttribute("visible", "true");
                 } else {
