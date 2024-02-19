@@ -38,7 +38,7 @@
                 Math.sin(dLon / 2) *
                 Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c * 4000; // Convert distance to meters
+            const distance = R * c * 20; // Convert distance to meters
             return distance;
           }
           function calculateRotation(start, end) {
@@ -67,7 +67,7 @@
              startToFirstMidpointLat,
              startToFirstMidpointLon
             );
-           if (midpointDistanceStart <= 4000) {
+           if (midpointDistanceStart <= 20) {
              startToFirstMidpointEntity.setAttribute("visible", "true");
            } else {
             startToFirstMidpointEntity.setAttribute("visible", "false");
@@ -92,7 +92,7 @@
             lastToFinalMidpointLat,
             lastToFinalMidpointLon
         );
-        if (lastMidpointDistance <= 4000) {
+        if (lastMidpointDistance <= 20) {
             lastToFinalMidpointEntity.setAttribute("visible", "true");
         } else {
             lastToFinalMidpointEntity.setAttribute("visible", "false");
@@ -136,9 +136,9 @@
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
-                // Only render spheres within a certain radius (e.g., 4000 meters)
+                // Only render spheres within a certain radius (e.g., 20 meters)
                 
-                if (distance <= 4000) {
+                if (distance <= 20) {
                   console.log("HEy hwo u doing");
                   console.log(instruction);
                   speakInstruction(instruction);
@@ -173,14 +173,14 @@
 
                   midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
 
-                  // Only render midpoint marker within a certain radius (e.g., 4000 meters)
+                  // Only render midpoint marker within a certain radius (e.g., 20 meters)
                   const midpointDistance = calculateDistance(
                     position.latitude,
                     position.longitude,
                     midpointLat,
                     midpointLon
                   );
-                  if (midpointDistance <= 4000) {
+                  if (midpointDistance <= 20) {
                     midpointEntity.setAttribute("visible", "true");
                   } else {
                     midpointEntity.setAttribute("visible", "false");
