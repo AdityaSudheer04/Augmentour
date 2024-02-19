@@ -41,30 +41,63 @@
             const distance = R * c * 1000; // Convert distance to meters
             return distance;
           }
-          function calculateDirectionAndRotation(start, end) {
-  const directionVector = {
-    x: end.location[1] - start.location[1],
-    y: end.location[0] - start.location[0],
-    z: 0, // Assuming a 2D plane
-  };
-
-  // Normalize direction vector
-  const length = Math.sqrt(
-    directionVector.x ** 2 + directionVector.y ** 2 + directionVector.z ** 2
-  );
-  directionVector.x /= length;
-  directionVector.y /= length;
-  directionVector.z /= length;
-
-  // Calculate rotation based on direction vector
-  const rotationX = Math.atan2(directionVector.z, directionVector.y); // Calculate rotation in X direction
-  const rotationY = Math.atan2(directionVector.x, directionVector.y); // Calculate rotation in Y direction
-
-  return { rotationX, rotationY };
-}
-
+          function calculateRotation(start, end) {
+            const dLat = end.latitude - start.latitude;
+            const dLon = end.longitude - start.longitude;
+            return (Math.atan2(dLon, dLat) * 180) / Math.PI;
+          }
           function updateSpheresSize(position) {
             routeData.detailedRouteDetails.forEach((step, index) => {
+              const startToFirstMidpointEntity = document.createElement("a-entity");
+              const startToFirstMidpointLat = (routeData.startLocation[1] + step.intersections[0].location[1]) / 2;
+              const startToFirstMidpointLon = (routeData.startLocation[0] + step.intersections[0].location[0]) / 2;
+
+               startToFirstMidpointEntity.setAttribute("gps-new-entity-place", { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon });
+               startToFirstMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+             const startToFirstMidpointRotation = calculateRotation(
+               { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon },
+               { latitude: step.intersections[0].location[1], longitude: step.intersections[0].location[0] }
+               );
+             startToFirstMidpointEntity.setAttribute("rotation", `0 ${startToFirstMidpointRotation} 0`);
+
+             const midpointDistanceStart = calculateDistance(
+             position.latitude,
+             position.longitude,
+             startToFirstMidpointLat,
+             startToFirstMidpointLon
+            );
+           if (midpointDistanceStart <= 20) {
+             startToFirstMidpointEntity.setAttribute("visible", "true");
+           } else {
+            startToFirstMidpointEntity.setAttribute("visible", "false");
+          }
+           document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
+        const lastToFinalMidpointEntity = document.createElement("a-entity");
+        const lastToFinalMidpointLat = (step.intersections[step.intersections.length - 1].location[1] + routeData.endLocation[1]) / 2;
+        const lastToFinalMidpointLon = (step.intersections[step.intersections.length - 1].location[0] + routeData.endLocation[0]) / 2;
+
+        lastToFinalMidpointEntity.setAttribute("gps-new-entity-place", { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon });
+        lastToFinalMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+        const lastToFinalMidpointRotation = calculateRotation(
+            { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon },
+            { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
+        );
+        lastToFinalMidpointEntity.setAttribute("rotation", `0 ${lastToFinalMidpointRotation} 0`);
+
+        const lastMidpointDistance = calculateDistance(
+            position.latitude,
+            position.longitude,
+            lastToFinalMidpointLat,
+            lastToFinalMidpointLon
+        );
+        if (lastMidpointDistance <= 20) {
+            lastToFinalMidpointEntity.setAttribute("visible", "true");
+        } else {
+            lastToFinalMidpointEntity.setAttribute("visible", "false");
+        }
+        document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
               step.intersections.forEach((intersection, i) => {
                 const distance = calculateDistance(
                   position.latitude,
@@ -88,20 +121,18 @@
                 if(i < step.intersections.length - 1)
                 {
                   const nextIntersection = step.intersections[i + 1];  
-                  const { rotationX, rotationY } = calculateDirectionAndRotation(intersection, nextIntersection);
-                   // Set rotation based on calculated direction
-                  const rotationXDeg = THREE.MathUtils.radToDeg(rotationX);
-                  const rotationYDeg = THREE.MathUtils.radToDeg(rotationY);
-                  poiEntity.setAttribute("rotation", `${rotationXDeg} ${rotationYDeg} 0`);
+                  const rotation1 = calculateRotation(
+                    { latitude: intersection.location[1], longitude: intersection.location[0] },
+                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+                  );
+                  poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
                 }
                 else if (i === step.intersections.length - 1 && index === routeData.detailedRouteDetails.length - 1) {
-                  const { rotationX, rotationY } = calculateDirectionAndRotation(
+                  const rotationEnd = calculateRotation(
                     { latitude: intersection.location[1], longitude: intersection.location[0] },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
                   );
-                  const rotationXDeg = THREE.MathUtils.radToDeg(rotationX);
-                  const rotationYDeg = THREE.MathUtils.radToDeg(rotationY);
-                  poiEntity.setAttribute("rotation", `${rotationXDeg} ${rotationYDeg} 0`);
+                  poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
                 // Only render spheres within a certain radius (e.g., 20 meters)
@@ -131,14 +162,12 @@
                     "gltf-model",
                     "url(./assets/models/arrowNew.glb)"
                   );
-                  const { rotationX1, rotationY1 } = calculateDirectionAndRotation(
+                  const rotation = calculateRotation(
                     { latitude: midpointLat, longitude: midpointLon },
                     { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
                   );
-                  const rotationXDeg1 = THREE.MathUtils.radToDeg(rotationX1);
-                  const rotationYDeg1 = THREE.MathUtils.radToDeg(rotationY1);
 
-                  midpointEntity.setAttribute("rotation", `${rotationXDeg1} ${rotationYDeg1} 0`);
+                  midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
 
                   // Only render midpoint marker within a certain radius (e.g., 20 meters)
                   const midpointDistance = calculateDistance(
@@ -158,49 +187,6 @@
               });
             });
           }
-          // Create midpoint entity for the startLocation and the first intersection
-          //       const startToFirstMidpointEntity = document.createElement("a-entity");
-          //      const startToFirstMidpointLat = (routeData.startLocation[1] + routeData.detailedRouteDetails[0].intersections[0].location[1]) / 2;
-          //         const startToFirstMidpointLat = (routeData.startLocation[0] + routeData.detailedRouteDetails[0].intersections[0].location[0]) / 2;
-          //               startToFirstMidpointEntity.setAttribute("gps-new-entity-place", { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon });
-          //        startToFirstMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
-
-          //                // Set rotation for the start to first midpoint to look at the first intersection
-          //                   const startToFirstMidpointRotation = calculateRotation(
-          //       { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon },
-          //             { latitude: routeData.detailedRouteDetails[0].intersections[0].location[1], longitude: routeData.detailedRouteDetails[0].intersections[0].location[0] }
-          //          );
-          //      startToFirstMidpointEntity.setAttribute("rotation", `0 ${startToFirstMidpointRotation} 0`);
-          // const startDistance = calculateDistance(
-          //           position.latitude,
-          //           position.longitude,
-          //           startToFirstMidpointLat,
-          //           startToFirstMidpointLat
-          //         );
-          //         if (startDistance <= 20) {
-          //           startToFirstMidpointEntity.setAttribute("visible", "true");
-          //         } else {
-          //           startToFirstMidpointEntity.setAttribute("visible", "false");
-          //         }
-
-          //    document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
-
-          //          // Create midpoint entity for the endLocation and the last intersection
-          //      const lastToFinalMidpointEntity = document.createElement("a-entity");
-          //   const lastToFinalMidpointLat = (routeData.endLocation[1] + routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[1]) / 2;
-          //  const lastToFinalMidpointLon = (routeData.endLocation[0] + routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[0]) / 2;
-          //  lastToFinalMidpointEntity.setAttribute("gps-new-entity-place", { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon });
-          //     lastToFinalMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
-
-          //    // Set rotation for the last to final midpoint to look at the last intersection
-          //      const lastToFinalMidpointRotation = calculateRotation(
-          //       { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon },
-          //          { latitude: routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[1], longitude: routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[0] }
-          //      );
-          // lastToFinalMidpointEntity.setAttribute("rotation", `0 ${lastToFinalMidpointRotation} 0`);
-          
-          // document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
-          
           document
             .querySelector("[gps-new-camera='gpsMinDistance: 2']")
             .addEventListener("gps-camera-update-position", (e) => {
