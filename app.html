@@ -19,7 +19,7 @@
       arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
       renderer="antialias: true; alpha: true"
     >
-      <a-camera look-controls-enabled='false' arjs-device-orientation-controls='smoothingFactor: 0.1' gps-new-camera="gpsMinDistance: 2" rotation-reader></a-camera>
+      <a-camera look-controls-enabled='true' arjs-device-orientation-controls='smoothingFactor: 0.1' gps-new-camera="gpsMinDistance: 2" rotation-reader></a-camera>
 
       <script>
         window.onload = function () {
@@ -72,18 +72,10 @@
                 if(i < step.intersections.length - 1)
                 {
                   const nextIntersection = step.intersections[i + 1];  
-                  const rotation1 = calculateRotation(
-                    { latitude: intersection.location[1], longitude: intersection.location[0] },
-                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
-                  );
-                  poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
+                  poiEntity.setAttribute("look-at", `[gps-new-entity-place="${nextIntersection.location[1]} ${nextIntersection.location[0]} 0"]`);
                 }
                 else if (i === step.intersections.length - 1 && index === routeData.detailedRouteDetails.length - 1) {
-                  const rotationEnd = calculateRotation(
-                    { latitude: intersection.location[1], longitude: intersection.location[0] },
-                    { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
-                  );
-                  poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
+                  poiEntity.setAttribute("look-at", `[gps-new-entity-place="${routeData.endLocation[1]} ${routeData.endLocation[0]} 0"]`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
                 // Only render spheres within a certain radius (e.g., 20 meters)
@@ -113,13 +105,7 @@
                     "gltf-model",
                     "url(./assets/models/arrowNew.glb)"
                   );
-                  const rotation = calculateRotation(
-                    { latitude: midpointLat, longitude: midpointLon },
-                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
-                  );
-
-                  midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
-
+                  midpointEntity.setAttribute("look-at", `[gps-new-entity-place="${nextIntersection.location[1]} ${nextIntersection.location[0]} 0"]`);
                   // Only render midpoint marker within a certain radius (e.g., 20 meters)
                   const midpointDistance = calculateDistance(
                     position.latitude,
