@@ -41,6 +41,11 @@
             const distance = R * c * 1000; // Convert distance to meters
             return distance;
           }
+          function calculateRotation(start, end) {
+            const dLat = end.latitude - start.latitude;
+            const dLon = end.longitude - start.longitude;
+            return (Math.atan2(dLon, dLat) * 180) / Math.PI;
+          }
 
           function updateSpheresSize(position) {
             routeData.detailedRouteDetails.forEach((step, index) => {
@@ -64,9 +69,25 @@
                   "gltf-model",
                   "url(./assets/models/arrowNew.glb)"
                 );
-                poiEntity.setAttribute("rotation", "0 180 0");
+                if(i < step.intersections.length - 1)
+                {
+                  const nextIntersection = step.intersections[i + 1];  
+                  const rotation1 = calculateRotation(
+                    { latitude: intersection.location[1], longitude: intersection.location[0] },
+                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+                  );
+                  poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
+                }
+                else if (i === step.intersections.length - 1 && index === routeData.detailedRouteDetails.length - 1) {
+                  const rotationEnd = calculateRotation(
+                    { latitude: intersection.location[1], longitude: intersection.location[0] },
+                    { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
+                  );
+                  poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
+                }
                 document.querySelector("a-scene").appendChild(poiEntity);
                 // Only render spheres within a certain radius (e.g., 20 meters)
+                
                 if (distance <= 20) {
                   poiEntity.setAttribute("visible", "true");
                 } else {
@@ -92,7 +113,12 @@
                     "gltf-model",
                     "url(./assets/models/arrowNew.glb)"
                   );
-                  midpointEntity.setAttribute("rotation", "0 180 0");
+                  const rotation = calculateRotation(
+                    { latitude: midpointLat, longitude: midpointLon },
+                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+                  );
+
+                  midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
 
                   // Only render midpoint marker within a certain radius (e.g., 20 meters)
                   const midpointDistance = calculateDistance(
@@ -112,6 +138,48 @@
               });
             });
           }
+          // Create midpoint entity for the startLocation and the first intersection
+          //       const startToFirstMidpointEntity = document.createElement("a-entity");
+          //      const startToFirstMidpointLat = (routeData.startLocation[1] + routeData.detailedRouteDetails[0].intersections[0].location[1]) / 2;
+          //         const startToFirstMidpointLat = (routeData.startLocation[0] + routeData.detailedRouteDetails[0].intersections[0].location[0]) / 2;
+          //               startToFirstMidpointEntity.setAttribute("gps-new-entity-place", { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon });
+          //        startToFirstMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+          //                // Set rotation for the start to first midpoint to look at the first intersection
+          //                   const startToFirstMidpointRotation = calculateRotation(
+          //       { latitude: startToFirstMidpointLat, longitude: startToFirstMidpointLon },
+          //             { latitude: routeData.detailedRouteDetails[0].intersections[0].location[1], longitude: routeData.detailedRouteDetails[0].intersections[0].location[0] }
+          //          );
+          //      startToFirstMidpointEntity.setAttribute("rotation", `0 ${startToFirstMidpointRotation} 0`);
+          // const startDistance = calculateDistance(
+          //           position.latitude,
+          //           position.longitude,
+          //           startToFirstMidpointLat,
+          //           startToFirstMidpointLat
+          //         );
+          //         if (startDistance <= 20) {
+          //           startToFirstMidpointEntity.setAttribute("visible", "true");
+          //         } else {
+          //           startToFirstMidpointEntity.setAttribute("visible", "false");
+          //         }
+
+          //    document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
+
+          //          // Create midpoint entity for the endLocation and the last intersection
+          //      const lastToFinalMidpointEntity = document.createElement("a-entity");
+          //   const lastToFinalMidpointLat = (routeData.endLocation[1] + routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[1]) / 2;
+          //  const lastToFinalMidpointLon = (routeData.endLocation[0] + routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[0]) / 2;
+          //  lastToFinalMidpointEntity.setAttribute("gps-new-entity-place", { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon });
+          //     lastToFinalMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+          //    // Set rotation for the last to final midpoint to look at the last intersection
+          //      const lastToFinalMidpointRotation = calculateRotation(
+          //       { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon },
+          //          { latitude: routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[1], longitude: routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections[routeData.detailedRouteDetails[routeData.detailedRouteDetails.length - 1].intersections.length - 1].location[0] }
+          //      );
+          // lastToFinalMidpointEntity.setAttribute("rotation", `0 ${lastToFinalMidpointRotation} 0`);
+          
+          // document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
           
           document
             .querySelector("[gps-new-camera='gpsMinDistance: 2']")
