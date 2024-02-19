@@ -68,6 +68,7 @@
              startToFirstMidpointLon
             );
            if (midpointDistanceStart <= 20) {
+             console.log(midpointDistanceStart+"FIRST");
              startToFirstMidpointEntity.setAttribute("visible", "true");
              document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
            } else {
@@ -94,6 +95,7 @@
             lastToFinalMidpointLon
         );
         if (lastMidpointDistance <= 20) {
+          console.log(lastMidpointDistance+"LAST");
             lastToFinalMidpointEntity.setAttribute("visible", "true");
             document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
         } else {
@@ -136,7 +138,9 @@
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
+                console.log(distance+"distnae");
                 if (distance <= 20) {
+                  console.log(distance+"distnae");
                   console.log("HEy hwo u doing");
                   console.log(instruction);
                   speakInstruction(instruction);
@@ -179,6 +183,7 @@
                     midpointLat,
                     midpointLon
                   );
+                  console.log(midpointDistance+"midpoint");
                   if (midpointDistance <= 20) {
                     midpointEntity.setAttribute("visible", "true");
                    document.querySelector("a-scene").appendChild(midpointEntity);
