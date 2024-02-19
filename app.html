@@ -49,32 +49,6 @@
           }
           function updateSpheresSize(position) {
             routeData.detailedRouteDetails.forEach((step, index) => {  
-        const lastToFinalMidpointEntity = document.createElement("a-entity");
-        const lastToFinalMidpointLat = (step.intersections[step.intersections.length - 1].location[1] + routeData.endLocation[1]) / 2;
-        const lastToFinalMidpointLon = (step.intersections[step.intersections.length - 1].location[0] + routeData.endLocation[0]) / 2;
-
-        lastToFinalMidpointEntity.setAttribute("gps-new-entity-place", { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon });
-        lastToFinalMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
-
-        const lastToFinalMidpointRotation = calculateRotation(
-            { latitude: lastToFinalMidpointLat, longitude: lastToFinalMidpointLon },
-            { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
-        );
-        lastToFinalMidpointEntity.setAttribute("rotation", `0 ${lastToFinalMidpointRotation} 0`);
-
-        const lastMidpointDistance = calculateDistance(
-            position.latitude,
-            position.longitude,
-            lastToFinalMidpointLat,
-            lastToFinalMidpointLon
-        );
-        if (lastMidpointDistance <= 20) {
-          console.log(lastMidpointDistance+"LAST");
-            lastToFinalMidpointEntity.setAttribute("visible", "true");
-            document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
-        } else {
-            lastToFinalMidpointEntity.setAttribute("visible", "false");
-        }
               let instruction=step.instruction;
               let speechdistance=Math.floor(step.distance);
               step.intersections.forEach((intersection, i) => {
@@ -123,7 +97,14 @@
                   if(instruction !== prev)
                   {
                   console.log(instruction);
-                  speakInstruction(instruction+"For another"+speechdistance+"meters");
+                  if(speechdistance==0)
+                  {
+                    speakInstruction(instruction);
+                  }
+                  else
+                  {  
+                    speakInstruction(instruction+"For another"+speechdistance+"meters");
+                  }
                   }
                   prev = instruction;
                   poiEntity.setAttribute("visible", "true");
