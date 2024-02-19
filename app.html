@@ -38,7 +38,7 @@
                 Math.sin(dLon / 2) *
                 Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c * 1000; // Convert distance to meters
+            const distance = R * c * 4000; // Convert distance to meters
             return distance;
           }
           function calculateRotation(start, end) {
@@ -67,7 +67,7 @@
              startToFirstMidpointLat,
              startToFirstMidpointLon
             );
-           if (midpointDistanceStart <= 1000) {
+           if (midpointDistanceStart <= 4000) {
              startToFirstMidpointEntity.setAttribute("visible", "true");
            } else {
             startToFirstMidpointEntity.setAttribute("visible", "false");
@@ -92,7 +92,7 @@
             lastToFinalMidpointLat,
             lastToFinalMidpointLon
         );
-        if (lastMidpointDistance <= 1000) {
+        if (lastMidpointDistance <= 4000) {
             lastToFinalMidpointEntity.setAttribute("visible", "true");
         } else {
             lastToFinalMidpointEntity.setAttribute("visible", "false");
@@ -136,10 +136,10 @@
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
-                // Only render spheres within a certain radius (e.g., 1000 meters)
+                // Only render spheres within a certain radius (e.g., 4000 meters)
                 
-                if (distance <= 1000) {
-                  console.log(instruction);
+                if (distance <= 4000) {
+                  speakInstruction(instruction);
                   poiEntity.setAttribute("visible", "true");
                 } else {
                   poiEntity.setAttribute("visible", "false");
@@ -171,14 +171,14 @@
 
                   midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
 
-                  // Only render midpoint marker within a certain radius (e.g., 1000 meters)
+                  // Only render midpoint marker within a certain radius (e.g., 4000 meters)
                   const midpointDistance = calculateDistance(
                     position.latitude,
                     position.longitude,
                     midpointLat,
                     midpointLon
                   );
-                  if (midpointDistance <= 1000) {
+                  if (midpointDistance <= 4000) {
                     midpointEntity.setAttribute("visible", "true");
                   } else {
                     midpointEntity.setAttribute("visible", "false");
@@ -221,6 +221,11 @@
                   "url(./assets/models/map_pointer_3d_icon.glb)"
           );
           document.querySelector("a-scene").appendChild(eEntity);
+          function speakInstruction(instruction) {
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = instruction;
+            window.speechSynthesis.speak(msg);
+          }
         };
       </script>
     </a-scene>
