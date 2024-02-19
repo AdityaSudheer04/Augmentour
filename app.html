@@ -120,16 +120,15 @@
                   longitude: intersection.location[0],
                 });
                if (
-                  (intersection.location[1] === routeData.startLocation[1] && intersection.location[0] === routeData.startLocation[0]) ||
-                  (intersection.location[1] === routeData.endLocation[1] && intersection.location[0] === routeData.endLocation[0])
-              ) {}
-                else
-               {
-                poiEntity.setAttribute(
+                  !((intersection.location[1] === routeData.startLocation[1] && intersection.location[0] === routeData.startLocation[0]) ||
+                  (intersection.location[1] === routeData.endLocation[1] && intersection.location[0] === routeData.endLocation[0]))
+              ) {
+                 poiEntity.setAttribute(
                   "gltf-model",
                   "url(./assets/models/arrowNew.glb)"
                 );
-               }
+              }
+               
                 if(i < step.intersections.length - 1)
                 {
                   const nextIntersection = step.intersections[i + 1];  
@@ -146,9 +145,7 @@
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
-                console.log(distance+"distnae");
-                if(distance <= 9)
-                {
+                if (distance <= 20) {
                   console.log(distance+"distnae");
                   if(instruction !== prev)
                   {
@@ -156,8 +153,6 @@
                   speakInstruction(instruction+"For another"+speechdistance+"meters");
                   }
                   prev = instruction;
-                }
-                if (distance <= 20) {
                   poiEntity.setAttribute("visible", "true");
                   document.querySelector("a-scene").appendChild(poiEntity);
                 } else {
@@ -166,45 +161,71 @@
 
                 // Calculate and add marker for midpoint
                 if (i < step.intersections.length - 1) {
-                  const nextIntersection = step.intersections[i + 1];
-                  const midpointLat =
-                    (intersection.location[1] + nextIntersection.location[1]) /
-                    2;
-                  const midpointLon =
-                    (intersection.location[0] + nextIntersection.location[0]) /
-                    2;
+    const nextIntersection = step.intersections[i + 1];
 
-                  const midpointEntity = document.createElement("a-entity");
-                  midpointEntity.setAttribute("gps-new-entity-place", {
-                    latitude: midpointLat,
-                    longitude: midpointLon,
-                  });
-                  midpointEntity.setAttribute(
-                    "gltf-model",
-                    "url(./assets/models/arrowNew.glb)"
-                  );
-                  const rotation = calculateRotation(
-                    { latitude: midpointLat, longitude: midpointLon },
-                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
-                  );
+    // Calculate sum of latitudes and longitudes
+    const sumLatitudes = intersection.location[1] + nextIntersection.location[1];
+    const sumLongitudes = intersection.location[0] + nextIntersection.location[0];
 
-                  midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
+    // Calculate midpoints at 1/3rd and 2/3rd of the sum
+    const firstMidpointLat = sumLatitudes / 3;
+    const firstMidpointLon = sumLongitudes / 3;
 
-                  // Only render midpoint marker within a certain radius (e.g., 20 meters)
-                  const midpointDistance = calculateDistance(
-                    position.latitude,
-                    position.longitude,
-                    midpointLat,
-                    midpointLon
-                  );
-                  console.log(midpointDistance+"midpoint");
-                  if (midpointDistance <= 20) {
-                    midpointEntity.setAttribute("visible", "true");
-                   document.querySelector("a-scene").appendChild(midpointEntity);
-                  } else {
-                    midpointEntity.setAttribute("visible", "false");
-                  }
-                }
+    const secondMidpointLat = (2 * sumLatitudes) / 3;
+    const secondMidpointLon = (2 * sumLongitudes) / 3;
+
+    const firstMidpointEntity = document.createElement("a-entity");
+    firstMidpointEntity.setAttribute("gps-new-entity-place", {
+        latitude: firstMidpointLat,
+        longitude: firstMidpointLon,
+    });
+    firstMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+    const rotation1 = calculateRotation(
+        { latitude: firstMidpointLat, longitude: firstMidpointLon },
+        { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+    );
+    firstMidpointEntity.setAttribute("rotation", `0 ${rotation1} 0`);
+
+    const firstMidpointDistance = calculateDistance(
+        position.latitude,
+        position.longitude,
+        firstMidpointLat,
+        firstMidpointLon
+    );
+    if (firstMidpointDistance <= 20) {
+        firstMidpointEntity.setAttribute("visible", "true");
+        document.querySelector("a-scene").appendChild(firstMidpointEntity);
+    } else {
+        firstMidpointEntity.setAttribute("visible", "false");
+    }
+
+    const secondMidpointEntity = document.createElement("a-entity");
+    secondMidpointEntity.setAttribute("gps-new-entity-place", {
+        latitude: secondMidpointLat,
+        longitude: secondMidpointLon,
+    });
+    secondMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
+
+    const rotation2 = calculateRotation(
+        { latitude: secondMidpointLat, longitude: secondMidpointLon },
+        { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+    );
+    secondMidpointEntity.setAttribute("rotation", `0 ${rotation2} 0`);
+
+    const secondMidpointDistance = calculateDistance(
+        position.latitude,
+        position.longitude,
+        secondMidpointLat,
+        secondMidpointLon
+    );
+    if (secondMidpointDistance <= 20) {
+        secondMidpointEntity.setAttribute("visible", "true");
+        document.querySelector("a-scene").appendChild(secondMidpointEntity);
+    } else {
+        secondMidpointEntity.setAttribute("visible", "false");
+    }
+}
               });
             });
           }
