@@ -47,10 +47,6 @@
             return (Math.atan2(dLon, dLat) * 180) / Math.PI;
           }
           function updateSpheresSize(position) {
-            const scene = document.querySelector("a-scene");
-            while (scene.firstChild) {
-             scene.removeChild(scene.firstChild);
-           }
             routeData.detailedRouteDetails.forEach((step, index) => {
               const startToFirstMidpointEntity = document.createElement("a-entity");
               const startToFirstMidpointLat = (routeData.startLocation[1] + step.intersections[0].location[1]) / 2;
