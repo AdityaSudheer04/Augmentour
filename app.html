@@ -69,10 +69,11 @@
             );
            if (midpointDistanceStart <= 20) {
              startToFirstMidpointEntity.setAttribute("visible", "true");
+             document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
            } else {
             startToFirstMidpointEntity.setAttribute("visible", "false");
           }
-           document.querySelector("a-scene").appendChild(startToFirstMidpointEntity);
+           
         const lastToFinalMidpointEntity = document.createElement("a-entity");
         const lastToFinalMidpointLat = (step.intersections[step.intersections.length - 1].location[1] + routeData.endLocation[1]) / 2;
         const lastToFinalMidpointLon = (step.intersections[step.intersections.length - 1].location[0] + routeData.endLocation[0]) / 2;
@@ -94,10 +95,10 @@
         );
         if (lastMidpointDistance <= 20) {
             lastToFinalMidpointEntity.setAttribute("visible", "true");
+            document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
         } else {
             lastToFinalMidpointEntity.setAttribute("visible", "false");
         }
-        document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
               let instruction=step.instruction;
               step.intersections.forEach((intersection, i) => {
                 const distance = calculateDistance(
@@ -135,14 +136,12 @@
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
-                document.querySelector("a-scene").appendChild(poiEntity);
-                // Only render spheres within a certain radius (e.g., 20 meters)
-                
                 if (distance <= 20) {
                   console.log("HEy hwo u doing");
                   console.log(instruction);
                   speakInstruction(instruction);
                   poiEntity.setAttribute("visible", "true");
+                  document.querySelector("a-scene").appendChild(poiEntity);
                 } else {
                   poiEntity.setAttribute("visible", "false");
                 }
@@ -182,11 +181,10 @@
                   );
                   if (midpointDistance <= 20) {
                     midpointEntity.setAttribute("visible", "true");
+                   document.querySelector("a-scene").appendChild(midpointEntity);
                   } else {
                     midpointEntity.setAttribute("visible", "false");
                   }
-
-                  document.querySelector("a-scene").appendChild(midpointEntity);
                 }
               });
             });
