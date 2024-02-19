@@ -67,7 +67,7 @@
              startToFirstMidpointLat,
              startToFirstMidpointLon
             );
-           if (midpointDistanceStart <= 20) {
+           if (midpointDistanceStart <= 1000) {
              startToFirstMidpointEntity.setAttribute("visible", "true");
            } else {
             startToFirstMidpointEntity.setAttribute("visible", "false");
@@ -92,12 +92,13 @@
             lastToFinalMidpointLat,
             lastToFinalMidpointLon
         );
-        if (lastMidpointDistance <= 20) {
+        if (lastMidpointDistance <= 1000) {
             lastToFinalMidpointEntity.setAttribute("visible", "true");
         } else {
             lastToFinalMidpointEntity.setAttribute("visible", "false");
         }
         document.querySelector("a-scene").appendChild(lastToFinalMidpointEntity);
+              let instruction=step.instruction;
               step.intersections.forEach((intersection, i) => {
                 const distance = calculateDistance(
                   position.latitude,
@@ -135,9 +136,10 @@
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 document.querySelector("a-scene").appendChild(poiEntity);
-                // Only render spheres within a certain radius (e.g., 20 meters)
+                // Only render spheres within a certain radius (e.g., 1000 meters)
                 
-                if (distance <= 20) {
+                if (distance <= 1000) {
+                  console.log(instruction);
                   poiEntity.setAttribute("visible", "true");
                 } else {
                   poiEntity.setAttribute("visible", "false");
@@ -169,14 +171,14 @@
 
                   midpointEntity.setAttribute("rotation", `0 ${rotation} 0`);
 
-                  // Only render midpoint marker within a certain radius (e.g., 20 meters)
+                  // Only render midpoint marker within a certain radius (e.g., 1000 meters)
                   const midpointDistance = calculateDistance(
                     position.latitude,
                     position.longitude,
                     midpointLat,
                     midpointLon
                   );
-                  if (midpointDistance <= 20) {
+                  if (midpointDistance <= 1000) {
                     midpointEntity.setAttribute("visible", "true");
                   } else {
                     midpointEntity.setAttribute("visible", "false");
