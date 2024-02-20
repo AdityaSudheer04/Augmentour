@@ -80,7 +80,7 @@
                   "url(./assets/models/arrowNew.glb)"
                 );
               }
-                if(i < intersectionsArray.length - 1)
+                if(i < intersectionsArray.length - 2)
                 {
                   const nextIntersection = intersectionsArray[i + 1];  
                   const rotation1 = calculateRotation(
@@ -89,7 +89,7 @@
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
                 }
-                else if (i === intersectionsArray.length - 1) {
+                else if (i === intersectionsArray.length - 2) {
                   const rotationEnd = calculateRotation(
                     { latitude: intersection.location[1], longitude: intersection.location[0] },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
@@ -108,12 +108,17 @@
                     speakInstruction(intersection.instruction+"For another"+intersection.speechdistance+"meters");
                   }
                   }
+                  if(intersection.instruction)
+                  {
                   prev = intersection.instruction;
+                  }
                   poiEntity.setAttribute("visible", "true");
                   document.querySelector("a-scene").appendChild(poiEntity);
                 } else {
                   poiEntity.setAttribute("visible", "false");
                 }
+
+            
                 if (i < intersectionsArray.length - 1) {
     const nextIntersection = intersectionsArray[i + 1];
 
@@ -179,6 +184,7 @@
         secondMidpointEntity.setAttribute("visible", "false");
     }
 }
+            
             });
           }
           document
