@@ -48,20 +48,25 @@
             return (Math.atan2(dLon, dLat) * 180) / Math.PI;
           }
           function updateSpheresSize(position) {
-            routeData.detailedRouteDetails.forEach((step, index) => {  
-              let instruction=step.instruction;
-              let speechdistance=Math.floor(step.distance);
-              step.intersections.forEach((intersection, i) => {
-                const distance = calculateDistance(
+                const intersectionsArray = [];
+          routeData.detailedRouteDetails.forEach((step, index) => {
+            step.intersections.forEach((intersection, i) => {
+              intersectionsArray.push({
+                latitude: intersection.location[1],
+                longitude: intersection.location[0],
+                instruction: step.instruction,
+                speechdistance: step.distance,
+              });
+            });
+          });
+          intersectionsArray.forEach((intersection, i) => {
+              const distance = calculateDistance(
                   position.latitude,
                   position.longitude,
                   intersection.location[1],
                   intersection.location[0]
                 );
-
-                // const poiEntity = document.querySelector(`[gps-entity-place="latitude: ${intersection.location[1]}; longitude: ${intersection.location[0]"}]`);
                 const poiEntity = document.createElement("a-entity");
-
                 poiEntity.setAttribute("gps-new-entity-place", {
                   latitude: intersection.location[1],
                   longitude: intersection.location[0],
@@ -75,17 +80,16 @@
                   "url(./assets/models/arrowNew.glb)"
                 );
               }
-               
-                if(i < step.intersections.length - 1)
+                if(i < intersectionsArray.length - 1)
                 {
-                  const nextIntersection = step.intersections[i + 1];  
+                  const nextIntersection = intersectionsArray[i + 1];  
                   const rotation1 = calculateRotation(
                     { latitude: intersection.location[1], longitude: intersection.location[0] },
                     { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
                 }
-                else if (i === step.intersections.length - 1 && index === routeData.detailedRouteDetails.length - 1) {
+                else if (i === intersectionsArray.length - 1) {
                   const rotationEnd = calculateRotation(
                     { latitude: intersection.location[1], longitude: intersection.location[0] },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
@@ -93,31 +97,26 @@
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 if (distance <= 20) {
-                  console.log(distance+"distnae");
-                  if(instruction !== prev)
+                  if(intersection.instruction !== prev && intersection.instruction)
                   {
-                  console.log(instruction);
-                  if(speechdistance==0)
+                  if(intersection.speechdistance==0)
                   {
-                    speakInstruction(instruction);
+                    speakInstruction(intersection.instruction);
                   }
                   else
                   {  
-                    speakInstruction(instruction+"For another"+speechdistance+"meters");
+                    speakInstruction(intersection.instruction+"For another"+intersection.speechdistance+"meters");
                   }
                   }
-                  prev = instruction;
+                  prev = intersection.instruction;
                   poiEntity.setAttribute("visible", "true");
                   document.querySelector("a-scene").appendChild(poiEntity);
                 } else {
                   poiEntity.setAttribute("visible", "false");
                 }
+                if (i < intersectionsArray.length - 1) {
+    const nextIntersection = intersectionsArray[i + 1];
 
-                // Calculate and add marker for midpoint
-                if (i < step.intersections.length - 1) {
-    const nextIntersection = step.intersections[i + 1];
-
-    // Calculate sum of latitudes and longitudes
     const sumLatitudes = intersection.location[1] + nextIntersection.location[1];
     const sumLongitudes = intersection.location[0] + nextIntersection.location[0];
 
@@ -180,7 +179,6 @@
         secondMidpointEntity.setAttribute("visible", "false");
     }
 }
-              });
             });
           }
           document
