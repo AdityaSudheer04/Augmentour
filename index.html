@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -42,7 +41,6 @@
         color: #333;
       }
     </style>
-
   </head>
   <script>
     mapboxgl.accessToken =
@@ -50,23 +48,18 @@
 
     let map;
     let userMarker;
-    let directions; // Move it here to make it globally accessible
+    let directions;
 
     navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
       enableHighAccuracy: true,
     });
 
     function successLocation(position) {
-      const userLocation = [
-        position.coords.longitude,
-        position.coords.latitude,
-      ];
+      const userLocation = [position.coords.longitude, position.coords.latitude];
       setupMap(userLocation);
 
-      // Add a marker at the user's current location
       userMarker = new mapboxgl.Marker().setLngLat(userLocation).addTo(map);
 
-      // Watch for changes in the user's position
       navigator.geolocation.watchPosition(
         updateUserLocation,
         errorLocation,
@@ -77,10 +70,7 @@
     }
 
     function updateUserLocation(position) {
-      const updatedUserLocation = [
-        position.coords.longitude,
-        position.coords.latitude,
-      ];
+      const updatedUserLocation = [position.coords.longitude, position.coords.latitude];
       userMarker.setLngLat(updatedUserLocation);
     }
 
@@ -89,15 +79,14 @@
     }
 
     function postRouteData(startLocation, endLocation, detailedRouteDetails) {
-  const data = {
-    startLocation: startLocation,
-    endLocation: endLocation,
-    detailedRouteDetails: detailedRouteDetails,
-  };
+      const data = {
+        startLocation: startLocation,
+        endLocation: endLocation,
+        detailedRouteDetails: detailedRouteDetails,
+      };
 
-  // Store the data in localStorage
-  localStorage.setItem('routeData', JSON.stringify(data));
-}
+      localStorage.setItem('routeData', JSON.stringify(data));
+    }
 
     function setupMap(center) {
       map = new mapboxgl.Map({
@@ -111,7 +100,6 @@
         const nav = new mapboxgl.NavigationControl();
         map.addControl(nav);
 
-        // Move directions initialization inside the map.on callback
         directions = new MapboxDirections({
           accessToken: mapboxgl.accessToken,
           profile: 'mapbox/walking',
@@ -120,52 +108,86 @@
         map.addControl(directions, "top-left");
         const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
 
-        // Now attach the 'route' event listener
-        directions.on("route", function (event) {
-          // Extract start and end coordinates from the route
-          const startLocation =
-            event.route[0].legs[0].steps[0].maneuver.location;
-          const endLocation =
-            event.route[0].legs[0].steps[
-              event.route[0].legs[0].steps.length - 1
-            ].maneuver.location;
+        map.on("click", function (e) {
+          // Get the clicked location coordinates
+          const clickedLocation = [e.lngLat.lng, e.lngLat.lat];
 
-          console.log("Start Location:", startLocation);
-          console.log("End Location:", endLocation);
+          // Set the destination for directions
+          directions.setDestination(clickedLocation);
 
-          const detailedRouteDetails = event.route[0].legs[0].steps.map(
-            (step, index) => ({
-              instruction: step.maneuver.instruction,
-              distance: step.distance,
-              duration: step.duration,
-              location: {
-                longitude: step.maneuver.location[0],
-                latitude: step.maneuver.location[1],
-              },
-              maneuver: step.maneuver,
-              geometry: step.geometry,
-              intersections: step.intersections,
-              travel_mode: step.travel_mode,
-              maneuver_type: step.maneuver.type,
-              step_index: index,
-            })
-          );
+          // Trigger route calculation
+          directions.query();
 
-          console.log("Detailed Route Details:", detailedRouteDetails);
-         postRouteData(startLocation, endLocation, detailedRouteDetails);
+          // Clear previous markers
+          map.getSource('user-marker').setData({
+            type: 'Point',
+            coordinates: center,
+          });
+
+          // Add marker for the clicked location
+          map.getSource('user-marker').setData({
+            type: 'Point',
+            coordinates: clickedLocation,
+          });
+
+          // Now attach the 'route' event listener
+          directions.on("route", function (event) {
+            const startLocation = center;
+            const endLocation = clickedLocation;
+
+            console.log("Start Location:", startLocation);
+            console.log("End Location:", endLocation);
+
+            const detailedRouteDetails = event.route[0].legs[0].steps.map(
+              (step, index) => ({
+                instruction: step.maneuver.instruction,
+                distance: step.distance,
+                duration: step.duration,
+                location: {
+                  longitude: step.maneuver.location[0],
+                  latitude: step.maneuver.location[1],
+                },
+                maneuver: step.maneuver,
+                geometry: step.geometry,
+                intersections: step.intersections,
+                travel_mode: step.travel_mode,
+                maneuver_type: step.maneuver.type,
+                step_index: index,
+              })
+            );
+
+            console.log("Detailed Route Details:", detailedRouteDetails);
+            postRouteData(startLocation, endLocation, detailedRouteDetails);
+          });
+        });
+
+        // Add a GeoJSON source for the user marker
+        map.addSource('user-marker', {
+          type: 'geojson',
+          data: {
+            type: 'Point',
+            coordinates: center,
+          },
+        });
+
+        // Add a layer for the user marker
+        map.addLayer({
+          id: 'user-marker',
+          source: 'user-marker',
+          type: 'symbol',
+          layout: {
+            'icon-image': 'marker-15', // Use a predefined icon
+            'icon-allow-overlap': true,
+          },
         });
       });
     }
   </script>
   <body>
-    <!-- Container for XR DOM Overlay elements -->
-
     <div id='map'></div>
 
-    <!-- Add this button to your HTML file -->
     <div id="arButton">
       <a href="/app.html" id="startArButton">Start AR</a>
     </div>
-
   </body>
 </html>
