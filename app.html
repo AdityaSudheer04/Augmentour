@@ -25,39 +25,7 @@
         window.onload = function () {
           const routeData = JSON.parse(localStorage.getItem("routeData"));
           console.log("Start Location:", routeData.startLocation);
-          console.log("End Location:", routeData.endLocation);
-            const intersectionsArray = [];
-  routeData.detailedRouteDetails.forEach((step, index) => {
-    step.intersections.forEach((intersection, i) => {
-      intersectionsArray.push({
-        latitude: intersection.location[1],
-        longitude: intersection.location[0],
-        instruction: step.instruction,
-        speechdistance: step.distance,
-      });
-    });
-  });
-
-  intersectionsArray.forEach((intersection, i) => {
-    console.log(`Intersection ${i + 1}: Latitude ${intersection.latitude}, Longitude ${intersection.longitude}`);
-  });
-
-  intersectionsArray.forEach((intersection, i) => {
-    const nextIntersection = intersectionsArray[i + 1];
-
-    const sumLatitudes = intersection.latitude + nextIntersection.latitude;
-    const sumLongitudes = intersection.longitude + nextIntersection.longitude;
-
-    const firstMidpointLat = sumLatitudes / 3;
-    const firstMidpointLon = sumLongitudes / 3;
-
-    const secondMidpointLat = (2 * sumLatitudes) / 3;
-    const secondMidpointLon = (2 * sumLongitudes) / 3;
-
-    console.log(`First Midpoint ${i + 1}: Latitude ${firstMidpointLat}, Longitude ${firstMidpointLon}`);
-    console.log(`Second Midpoint ${i + 1}: Latitude ${secondMidpointLat}, Longitude ${secondMidpointLon}`);
-  });
-          
+          console.log("End Location:", routeData.endLocation);     
           let prev;
           
           function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -154,15 +122,14 @@
                 if (i < intersectionsArray.length - 1) {
     const nextIntersection = intersectionsArray[i + 1];
 
-    const sumLatitudes = intersection.latitude + nextIntersection.latitude;
-    const sumLongitudes = intersection.longitude + nextIntersection.longitude;
+    const diffLatitudes = Math.abs(intersection.latitude - nextIntersection.latitude);
+    const diffLongitudes = Math.abs(intersection.longitude - nextIntersection.longitude);
+                  
+    const firstMidpointLat =intersection.latitude+diffLatitudes/3;
+    const firstMidpointLon = intersection.longitude+diffLongitudes/3;
 
-    // Calculate midpoints at 1/3rd and 2/3rd of the sum
-    const firstMidpointLat = sumLatitudes / 3;
-    const firstMidpointLon = sumLongitudes / 3;
-
-    const secondMidpointLat = (2 * sumLatitudes) / 3;
-    const secondMidpointLon = (2 * sumLongitudes) / 3;
+    const secondMidpointLat =intersection.latitude+(2*diffLatitudes)/3;
+    const secondMidpointLon = intersection.longitude+(2*diffLongitudes)/3;
 
     const firstMidpointEntity = document.createElement("a-entity");
     firstMidpointEntity.setAttribute("gps-new-entity-place", {
