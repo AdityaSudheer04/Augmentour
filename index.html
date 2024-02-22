@@ -115,12 +115,12 @@
         directions = new MapboxDirections({
           accessToken: mapboxgl.accessToken
         });
-        navigator.geolocation.getCurrentPosition((position)=> {
-      directions.setOrigin([
-            position.coords.longitude,
-            position.coords.latitude
-        ]);
+        navigator.geolocation.getCurrentPosition((position) => {
+    directions.setOrigin({
+      lng: position.coords.longitude,
+      lat: position.coords.latitude
     });
+  });
           
         map.addControl(directions, "top-left");
         const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
