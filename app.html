@@ -27,10 +27,10 @@
           console.log("Start Location:", routeData.startLocation);
           console.log("End Location:", routeData.endLocation);     
           let prev;
-          let intersectionsArray = [];
+          let intersectionsArray1 = [];
            routeData.detailedRouteDetails.forEach((step, index) => {
     step.intersections.forEach((intersection, i) => {
-      intersectionsArray.push({
+      intersectionsArray1.push({
         latitude: intersection.location[1],
         longitude: intersection.location[0],
         instruction: step.instruction,
@@ -39,10 +39,10 @@
     });
   });
 
-  console.log("All Intersections:", intersectionsArray);
+  console.log("All Intersections:", intersectionsArray1);
 
-  intersectionsArray.forEach((intersection, i) => {
-    if (i < intersectionsArray.length - 1) {
+  intersectionsArray1.forEach((intersection, i) => {
+    if (i < intersectionsArray1.length - 1) {
       const nextIntersection = intersectionsArray[i + 1];
 
       const diffLatitudes = Math.abs(intersection.latitude - nextIntersection.latitude);
