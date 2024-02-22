@@ -63,17 +63,17 @@
               const distance = calculateDistance(
                   position.latitude,
                   position.longitude,
-                  intersection.location[1],
-                  intersection.location[0]
+                  intersection.latitude,
+                  intersection.longitude
                 );
                 const poiEntity = document.createElement("a-entity");
                 poiEntity.setAttribute("gps-new-entity-place", {
-                  latitude: intersection.location[1],
-                  longitude: intersection.location[0],
+                  latitude: intersection.latitude,
+                  longitude: intersection.longitude,
                 });
                if (
-                  !((intersection.location[1] === routeData.startLocation[1] && intersection.location[0] === routeData.startLocation[0]) ||
-                  (intersection.location[1] === routeData.endLocation[1] && intersection.location[0] === routeData.endLocation[0]))
+                  !((intersection.latitude === routeData.startLocation[1] && intersection.longitude === routeData.startLocation[0]) ||
+                  (intersection.latitude === routeData.endLocation[1] && intersection.longitude === routeData.endLocation[0]))
               ) {
                  poiEntity.setAttribute(
                   "gltf-model",
@@ -84,14 +84,14 @@
                 {
                   const nextIntersection = intersectionsArray[i + 1];  
                   const rotation1 = calculateRotation(
-                    { latitude: intersection.location[1], longitude: intersection.location[0] },
-                    { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+                    { latitude: intersection.latitude, longitude: intersection.longitude },
+                    { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
                 }
                 else if (i === intersectionsArray.length - 2) {
                   const rotationEnd = calculateRotation(
-                    { latitude: intersection.location[1], longitude: intersection.location[0] },
+                    { latitude: intersection.latitude, longitude: intersection.longitude },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
                   );
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
@@ -122,8 +122,8 @@
                 if (i < intersectionsArray.length - 1) {
     const nextIntersection = intersectionsArray[i + 1];
 
-    const sumLatitudes = intersection.location[1] + nextIntersection.location[1];
-    const sumLongitudes = intersection.location[0] + nextIntersection.location[0];
+    const sumLatitudes = intersection.latitude + nextIntersection.latitude;
+    const sumLongitudes = intersection.longitude + nextIntersection.longitude;
 
     // Calculate midpoints at 1/3rd and 2/3rd of the sum
     const firstMidpointLat = sumLatitudes / 3;
@@ -141,7 +141,7 @@
 
     const rotation1 = calculateRotation(
         { latitude: firstMidpointLat, longitude: firstMidpointLon },
-        { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+        { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
     firstMidpointEntity.setAttribute("rotation", `0 ${rotation1} 0`);
 
@@ -167,7 +167,7 @@
 
     const rotation2 = calculateRotation(
         { latitude: secondMidpointLat, longitude: secondMidpointLon },
-        { latitude: nextIntersection.location[1], longitude: nextIntersection.location[0] }
+        { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
     secondMidpointEntity.setAttribute("rotation", `0 ${rotation2} 0`);
 
