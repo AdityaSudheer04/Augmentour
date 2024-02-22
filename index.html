@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -89,88 +88,72 @@
     }
 
     function postRouteData(startLocation, endLocation, detailedRouteDetails) {
-  const data = {
-    startLocation: startLocation,
-    endLocation: endLocation,
-    detailedRouteDetails: detailedRouteDetails,
-  };
+      const data = {
+        startLocation: startLocation,
+        endLocation: endLocation,
+        detailedRouteDetails: detailedRouteDetails,
+      };
 
-  // Store the data in localStorage
-  localStorage.setItem('routeData', JSON.stringify(data));
-}
+      // Store the data in localStorage
+      localStorage.setItem('routeData', JSON.stringify(data));
+    }
 
-    function setupMap() {
-  navigator.geolocation.getCurrentPosition(function (position) {
-    const userLocation = [position.coords.longitude, position.coords.latitude];
+    function setupMap(center) {
+      map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: center,
+        zoom: 15,
+      });
 
-    map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: userLocation,
-      zoom: 15,
-    });
+      const nav = new mapboxgl.NavigationControl();
+      map.addControl(nav);
 
-    const nav = new mapboxgl.NavigationControl();
-    map.addControl(nav);
+      // Move directions initialization inside the map.on callback
+      directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        profile: 'mapbox/walking', // Set the default profile to walking
+      });
 
-    // Move directions initialization inside the map.on callback
-    directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      profile: 'mapbox/walking', // Set the default profile to walking
-      // Set the origin to the user's current location
-      waypoints: [
-        {
-          coordinates: userLocation,
-        },
-      ],
-    });
+      map.addControl(directions, "top-left");
 
-    map.addControl(directions, "top-left");
-    const marker = new mapboxgl.Marker().setLngLat(userLocation).addTo(map);
+      const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
 
-    // Now attach the 'route' event listener
-    directions.on("route", function (event) {
-      // Extract start and end coordinates from the route
-      const startLocation =
-        event.route[0].legs[0].steps[0].maneuver.location;
-      const endLocation =
-        event.route[0].legs[0].steps[
-          event.route[0].legs[0].steps.length - 1
-        ].maneuver.location;
+      // Now attach the 'route' event listener
+      directions.on("route", function (event) {
+        // Extract start and end coordinates from the route
+        const startLocation =
+          event.route[0].legs[0].steps[0].maneuver.location;
+        const endLocation =
+          event.route[0].legs[0].steps[
+            event.route[0].legs[0].steps.length - 1
+          ].maneuver.location;
 
-      console.log("Start Location:", startLocation);
-      console.log("End Location:", endLocation);
+        console.log("Start Location:", startLocation);
+        console.log("End Location:", endLocation);
 
-      const detailedRouteDetails = event.route[0].legs[0].steps.map(
-        (step, index) => ({
-          instruction: step.maneuver.instruction,
-          distance: step.distance,
-          duration: step.duration,
-          location: {
-            longitude: step.maneuver.location[0],
-            latitude: step.maneuver.location[1],
-          },
-          maneuver: step.maneuver,
-          geometry: step.geometry,
-          intersections: step.intersections,
-          travel_mode: step.travel_mode,
-          maneuver_type: step.maneuver.type,
-          step_index: index,
-        })
-      );
+        const detailedRouteDetails = event.route[0].legs[0].steps.map(
+          (step, index) => ({
+            instruction: step.maneuver.instruction,
+            distance: step.distance,
+            duration: step.duration,
+            location: {
+              longitude: step.maneuver.location[0],
+              latitude: step.maneuver.location[1],
+            },
+            maneuver: step.maneuver,
+            geometry: step.geometry,
+            intersections: step.intersections,
+            travel_mode: step.travel_mode,
+            maneuver_type: step.maneuver.type,
+            step_index: index,
+          })
+        );
 
-      console.log("Detailed Route Details:", detailedRouteDetails);
-      postRouteData(startLocation, endLocation, detailedRouteDetails);
-    });
-  }, function (error) {
-    // Handle geolocation error
-    console.error("Error getting user location:", error.message);
-  }, {
-    enableHighAccuracy: true,
-  });
-}
-
-
+        console.log("Detailed Route Details:", detailedRouteDetails);
+        postRouteData(startLocation, endLocation, detailedRouteDetails);
+      });
+    }
   </script>
   <body>
     <!-- Container for XR DOM Overlay elements -->
