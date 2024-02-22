@@ -112,9 +112,10 @@
         map.addControl(nav);
 
         // Move directions initialization inside the map.on callback
-        directions = new MapboxDirections({
-          accessToken: mapboxgl.accessToken,
-        });
+       directions = new MapboxDirections({
+  accessToken: mapboxgl.accessToken,
+  profile: 'mapbox/walking', // Set the default profile to walking
+});
 
         map.addControl(directions, "top-left");
         const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
