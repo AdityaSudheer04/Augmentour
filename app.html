@@ -57,6 +57,20 @@
       // Adjust the rotation to ensure it's between 0 and 360 degrees
       return (rotationDegrees + 360) % 360;
     }
+
+          function calculateDirectionVector(start, end) {
+      const dLat = end.latitude - start.latitude;
+      const dLon = end.longitude - start.longitude;
+      const length = Math.sqrt(dLat * dLat + dLon * dLon);
+
+      // Normalize the direction vector
+      const direction = {
+        x: dLat / length,
+        y: dLon / length,
+      };
+
+      return direction;
+    }
           function updateSpheresSize(position) {
                 const intersectionsArray = [];
           routeData.detailedRouteDetails.forEach((step, index) => {
@@ -93,17 +107,19 @@
                 if(i < intersectionsArray.length - 2)
                 {
                   const nextIntersection = intersectionsArray[i + 1];  
-                  const rotation1 = calculateRotation(
+                  const directionVector= calculateDirectionVector(
                     { latitude: intersection.latitude, longitude: intersection.longitude },
                     { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
                   );
-                   poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
+                  const rotationY = Math.atan2(directionVector.x, directionVector.y) * (180 / Math.PI);
+                   poiEntity.setAttribute("rotation", `0 ${rotationY} 0`);
                 }
                 else if (i === intersectionsArray.length - 2) {
-                  const rotationEnd = calculateRotation(
+                  const directionVector = calculateDirectionVector(
                     { latitude: intersection.latitude, longitude: intersection.longitude },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
                   );
+                  const rotationEnd = Math.atan2(directionVector.x, directionVector.y) * (180 / Math.PI);
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 if (distance <= 20) {
@@ -148,10 +164,11 @@
     });
     firstMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
 
-    const rotation1 = calculateRotation(
+    const directionVector1 = calculateDirectionVector(
         { latitude: firstMidpointLat, longitude: firstMidpointLon },
         { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
+    const rotation1 = Math.atan2(directionVector1.x, directionVector1.y) * (180 / Math.PI);
     firstMidpointEntity.setAttribute("rotation", `0 ${rotation1} 0`);
 
 
@@ -175,10 +192,11 @@
     });
     secondMidpointEntity.setAttribute("gltf-model", "url(./assets/models/arrowNew.glb)");
 
-    const rotation2 = calculateRotation(
+    const directionVector2 = calculateDirectionVector(
         { latitude: secondMidpointLat, longitude: secondMidpointLon },
         { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
+  const rotation2 = Math.atan2(directionVector2.x, directionVector2.y) * (180 / Math.PI);    
    secondMidpointEntity.setAttribute("rotation", `0 ${rotation2} 0`);           
 
     const secondMidpointDistance = calculateDistance(
