@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -113,7 +114,6 @@
         // Move directions initialization inside the map.on callback
         directions = new MapboxDirections({
           accessToken: mapboxgl.accessToken,
-          profile: 'mapbox/walking',
         });
 
         map.addControl(directions, "top-left");
