@@ -113,8 +113,7 @@
 
         // Move directions initialization inside the map.on callback
         directions = new MapboxDirections({
-          accessToken: mapboxgl.accessToken,
-          profile: '
+          accessToken: mapboxgl.accessToken
         });
         navigator.geolocation.getCurrentPosition((position)=> {
       directions.setOrigin([
