@@ -172,7 +172,14 @@
                   }
                   else
                   {  
-                    speakInstruction(intersection.instruction+"For another"+Math.floor(intersection.speechdistance)+"meters");
+                    if(instruction.toLowerCase().startsWith('turn'))
+                    {
+                    speakInstruction(intersection.instruction+"And Walk For another"+Math.floor(intersection.speechdistance)+"meters");
+                    }
+                    else
+                    {
+                     speakInstruction(intersection.instruction+"For another"+Math.floor(intersection.speechdistance)+"meters");
+                    }
                   }
                   }
                   if(intersection.instruction)
