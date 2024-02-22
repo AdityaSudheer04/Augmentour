@@ -27,6 +27,7 @@
           console.log("Start Location:", routeData.startLocation);
           console.log("End Location:", routeData.endLocation);     
           let prev;
+          let intersectionsArray = [];
            routeData.detailedRouteDetails.forEach((step, index) => {
     step.intersections.forEach((intersection, i) => {
       intersectionsArray.push({
