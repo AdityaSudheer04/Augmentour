@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -88,15 +89,15 @@
     }
 
     function postRouteData(startLocation, endLocation, detailedRouteDetails) {
-      const data = {
-        startLocation: startLocation,
-        endLocation: endLocation,
-        detailedRouteDetails: detailedRouteDetails,
-      };
+  const data = {
+    startLocation: startLocation,
+    endLocation: endLocation,
+    detailedRouteDetails: detailedRouteDetails,
+  };
 
-      // Store the data in localStorage
-      localStorage.setItem('routeData', JSON.stringify(data));
-    }
+  // Store the data in localStorage
+  localStorage.setItem('routeData', JSON.stringify(data));
+}
 
     function setupMap(center) {
       map = new mapboxgl.Map({
@@ -106,52 +107,59 @@
         zoom: 15,
       });
 
-      const nav = new mapboxgl.NavigationControl();
-      map.addControl(nav);
+      map.on("load", function () {
+        const nav = new mapboxgl.NavigationControl();
+        map.addControl(nav);
 
-      // Move directions initialization inside the map.on callback
-      directions = new MapboxDirections({
-        accessToken: mapboxgl.accessToken,
-        profile: 'mapbox/walking', // Set the default profile to walking
-      });
+        // Move directions initialization inside the map.on callback
+        directions = new MapboxDirections({
+          accessToken: mapboxgl.accessToken,
+          profile: '
+        });
+        navigator.geolocation.getCurrentPosition((position)=> {
+      directions.setOrigin([
+            position.coords.longitude,
+            position.coords.latitude
+        ]);
+    });
+          
+        map.addControl(directions, "top-left");
+        const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
 
-      map.addControl(directions, "top-left");
+        // Now attach the 'route' event listener
+        directions.on("route", function (event) {
+          // Extract start and end coordinates from the route
+          const startLocation =
+            event.route[0].legs[0].steps[0].maneuver.location;
+          const endLocation =
+            event.route[0].legs[0].steps[
+              event.route[0].legs[0].steps.length - 1
+            ].maneuver.location;
 
-      const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
+          console.log("Start Location:", startLocation);
+          console.log("End Location:", endLocation);
 
-      // Now attach the 'route' event listener
-      directions.on("route", function (event) {
-        // Extract start and end coordinates from the route
-        const startLocation =
-          event.route[0].legs[0].steps[0].maneuver.location;
-        const endLocation =
-          event.route[0].legs[0].steps[
-            event.route[0].legs[0].steps.length - 1
-          ].maneuver.location;
+          const detailedRouteDetails = event.route[0].legs[0].steps.map(
+            (step, index) => ({
+              instruction: step.maneuver.instruction,
+              distance: step.distance,
+              duration: step.duration,
+              location: {
+                longitude: step.maneuver.location[0],
+                latitude: step.maneuver.location[1],
+              },
+              maneuver: step.maneuver,
+              geometry: step.geometry,
+              intersections: step.intersections,
+              travel_mode: step.travel_mode,
+              maneuver_type: step.maneuver.type,
+              step_index: index,
+            })
+          );
 
-        console.log("Start Location:", startLocation);
-        console.log("End Location:", endLocation);
-
-        const detailedRouteDetails = event.route[0].legs[0].steps.map(
-          (step, index) => ({
-            instruction: step.maneuver.instruction,
-            distance: step.distance,
-            duration: step.duration,
-            location: {
-              longitude: step.maneuver.location[0],
-              latitude: step.maneuver.location[1],
-            },
-            maneuver: step.maneuver,
-            geometry: step.geometry,
-            intersections: step.intersections,
-            travel_mode: step.travel_mode,
-            maneuver_type: step.maneuver.type,
-            step_index: index,
-          })
-        );
-
-        console.log("Detailed Route Details:", detailedRouteDetails);
-        postRouteData(startLocation, endLocation, detailedRouteDetails);
+          console.log("Detailed Route Details:", detailedRouteDetails);
+         postRouteData(startLocation, endLocation, detailedRouteDetails);
+        });
       });
     }
   </script>
