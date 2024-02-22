@@ -87,16 +87,14 @@
                     { latitude: intersection.latitude, longitude: intersection.longitude },
                     { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
                   );
-                  // poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
-                  poiEntity.setAttribute("look-at", `[gps-new-entity-place="${nextIntersection.latitude} ${nextIntersection.longitude}"]`);
+                   poiEntity.setAttribute("rotation", `0 ${rotation1} 0`);
                 }
                 else if (i === intersectionsArray.length - 2) {
                   const rotationEnd = calculateRotation(
                     { latitude: intersection.latitude, longitude: intersection.longitude },
                     { latitude: routeData.endLocation[1], longitude: routeData.endLocation[0] }
                   );
-                  // poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
-                  poiEntity.setAttribute("look-at", `[gps-new-entity-place="${routeData.endLocation[1]} ${routeData.endLocation[0]}"]`);
+                  poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
                 if (distance <= 20) {
                   if(intersection.instruction !== prev && intersection.instruction)
@@ -144,9 +142,8 @@
         { latitude: firstMidpointLat, longitude: firstMidpointLon },
         { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
-    // firstMidpointEntity.setAttribute("rotation", `0 ${rotation1} 0`);
+    firstMidpointEntity.setAttribute("rotation", `0 ${rotation1} 0`);
 
-    firstMidpointEntity.setAttribute("look-at", `[gps-new-entity-place="${nextIntersection.latitude} ${nextIntersection.longitude}"]`);
 
     const firstMidpointDistance = calculateDistance(
         position.latitude,
@@ -172,9 +169,7 @@
         { latitude: secondMidpointLat, longitude: secondMidpointLon },
         { latitude: nextIntersection.latitude, longitude: nextIntersection.longitude }
     );
-    // secondMidpointEntity.setAttribute("rotation", `0 ${rotation2} 0`);
-
-    secondMidpointEntity.setAttribute("look-at", `[gps-new-entity-place="${nextIntersection.latitude} ${nextIntersection.longitude}"]`);            
+   secondMidpointEntity.setAttribute("rotation", `0 ${rotation2} 0`);           
 
     const secondMidpointDistance = calculateDistance(
         position.latitude,
