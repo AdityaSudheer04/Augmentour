@@ -99,15 +99,17 @@
   localStorage.setItem('routeData', JSON.stringify(data));
 }
 
-    function setupMap(center) {
-  map = new mapboxgl.Map({
-    container: "map",
-    style: "mapbox://styles/mapbox/streets-v11",
-    center: center,
-    zoom: 15,
-  });
+    function setupMap() {
+  navigator.geolocation.getCurrentPosition(function (position) {
+    const userLocation = [position.coords.longitude, position.coords.latitude];
 
-  map.on("load", function () {
+    map = new mapboxgl.Map({
+      container: "map",
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: userLocation,
+      zoom: 15,
+    });
+
     const nav = new mapboxgl.NavigationControl();
     map.addControl(nav);
 
@@ -115,18 +117,16 @@
     directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       profile: 'mapbox/walking', // Set the default profile to walking
-    });
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      directions.setOrigin({
-        lon: position.coords.longitude,
-        lat: position.coords.latitude
-      });
+      // Set the origin to the user's current location
+      waypoints: [
+        {
+          coordinates: userLocation,
+        },
+      ],
     });
 
     map.addControl(directions, "top-left");
-
-    const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
+    const marker = new mapboxgl.Marker().setLngLat(userLocation).addTo(map);
 
     // Now attach the 'route' event listener
     directions.on("route", function (event) {
@@ -162,8 +162,14 @@
       console.log("Detailed Route Details:", detailedRouteDetails);
       postRouteData(startLocation, endLocation, detailedRouteDetails);
     });
+  }, function (error) {
+    // Handle geolocation error
+    console.error("Error getting user location:", error.message);
+  }, {
+    enableHighAccuracy: true,
   });
 }
+
 
   </script>
   <body>
