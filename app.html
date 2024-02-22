@@ -42,11 +42,21 @@
             const distance = R * c * 1000 ; // Convert distance to meters
             return distance;
           }
+          // function calculateRotation(start, end) {
+          //   const dLat = end.latitude - start.latitude;
+          //   const dLon = end.longitude - start.longitude;
+          //   return (Math.atan2(dLon, dLat) * 180) / Math.PI;
+          // }
           function calculateRotation(start, end) {
-            const dLat = end.latitude - start.latitude;
-            const dLon = end.longitude - start.longitude;
-            return (Math.atan2(dLon, dLat) * 180) / Math.PI;
-          }
+      const dLat = end.latitude - start.latitude;
+      const dLon = end.longitude - start.longitude;
+      // Calculate the rotation angle in radians
+      const rotationAngle = Math.atan2(dLon, dLat);
+      // Convert the rotation angle to degrees
+      const rotationDegrees = (rotationAngle * 180) / Math.PI;
+      // Adjust the rotation to ensure it's between 0 and 360 degrees
+      return (rotationDegrees + 360) % 360;
+    }
           function updateSpheresSize(position) {
                 const intersectionsArray = [];
           routeData.detailedRouteDetails.forEach((step, index) => {
