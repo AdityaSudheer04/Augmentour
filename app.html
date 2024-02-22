@@ -43,7 +43,7 @@
 
   intersectionsArray1.forEach((intersection, i) => {
     if (i < intersectionsArray1.length - 1) {
-      const nextIntersection = intersectionsArray[i + 1];
+      const nextIntersection = intersectionsArray1[i + 1];
 
       const diffLatitudes = Math.abs(intersection.latitude - nextIntersection.latitude);
       const diffLongitudes = Math.abs(intersection.longitude - nextIntersection.longitude);
