@@ -27,48 +27,6 @@
           console.log("Start Location:", routeData.startLocation);
           console.log("End Location:", routeData.endLocation);     
           let prev;
-          let intersectionsArray1 = [];
-           routeData.detailedRouteDetails.forEach((step, index) => {
-    step.intersections.forEach((intersection, i) => {
-      intersectionsArray1.push({
-        latitude: intersection.location[1],
-        longitude: intersection.location[0],
-        instruction: step.instruction,
-        speechdistance: step.distance,
-      });
-    });
-  });
-
-  console.log("All Intersections:", intersectionsArray1);
-
-  intersectionsArray1.forEach((intersection, i) => {
-    if (i < intersectionsArray1.length - 1) {
-      const nextIntersection = intersectionsArray1[i + 1];
-
-      const diffLatitudes = Math.abs(intersection.latitude - nextIntersection.latitude);
-      const diffLongitudes = Math.abs(intersection.longitude - nextIntersection.longitude);
-
-      const segmentLength = 5; // Set the length of each segment
-
-      const numMidpoints = Math.floor(
-        calculateDistance(
-          intersection.latitude,
-          intersection.longitude,
-          nextIntersection.latitude,
-          nextIntersection.longitude
-        ) / segmentLength
-      );
-
-      for (let j = 1; j <= numMidpoints; j++) {
-        const ratio = j / (numMidpoints + 1);
-
-        const midpointLat = intersection.latitude + ratio * diffLatitudes;
-        const midpointLon = intersection.longitude + ratio * diffLongitudes;
-
-        console.log("Midpoint:", { latitude: midpointLat, longitude: midpointLon });
-      }
-    }
-  });
           function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in kilometers
             const dLat = (lat2 - lat1) * (Math.PI / 180);
