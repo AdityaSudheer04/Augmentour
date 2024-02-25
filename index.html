@@ -77,12 +77,57 @@
     }
 
     function updateUserLocation(position) {
-      const updatedUserLocation = [
-        position.coords.longitude,
-        position.coords.latitude,
-      ];
-      userMarker.setLngLat(updatedUserLocation);
-    }
+  const updatedUserLocation = [
+    position.coords.longitude,
+    position.coords.latitude,
+  ];
+
+  // Update the map marker
+  userMarker.setLngLat(updatedUserLocation);
+
+  // Update the directions origin
+  directions.setOrigin(updatedUserLocation);
+
+  // Fetch fresh route details from Mapbox Directions API
+  directions.on('route', function (event) {
+    const updatedDetailedRouteDetails = event.route[0].legs[0].steps.map(
+      (step, index) => ({
+        instruction: step.maneuver.instruction,
+        distance: step.distance,
+        duration: step.duration,
+        location: {
+          longitude: step.maneuver.location[0],
+          latitude: step.maneuver.location[1],
+        },
+        maneuver: step.maneuver,
+        geometry: step.geometry,
+        intersections: step.intersections,
+        travel_mode: step.travel_mode,
+        maneuver_type: step.maneuver.type,
+        step_index: index,
+      })
+    );
+
+    const endL = event.route[0].legs[0].steps[
+              event.route[0].legs[0].steps.length - 1
+            ].maneuver.location;
+
+    // Update localStorage with the fresh route details
+    const data = {
+      startLocation: updatedUserLocation,
+      endLocation: endL , // Assuming endLocation is set elsewhere
+      detailedRouteDetails: updatedDetailedRouteDetails,
+    };
+
+    localStorage.setItem('routeData', JSON.stringify(data));
+
+    // Now you can use the updatedDetailedRouteDetails for any other purposes
+    // ...
+
+    console.log("Updated Detailed Route Details:", updatedDetailedRouteDetails);
+  });
+}
+
 
     function errorLocation() {
       setupMap([-2.24, 53.48]);
@@ -111,17 +156,18 @@
         const nav = new mapboxgl.NavigationControl();
         map.addControl(nav);
 
+        navigator.geolocation.getCurrentPosition((position) => {
+      directions.setOrigin([
+        position.coords.longitude,
+        position.coords.latitude,
+      ]);
+    });
+
         // Move directions initialization inside the map.on callback
         directions = new MapboxDirections({
-          accessToken: mapboxgl.accessToken
+          accessToken: mapboxgl.accessToken,
         });
-        navigator.geolocation.getCurrentPosition((position) => {
-    directions.setOrigin({
-      lng: position.coords.longitude,
-      lat: position.coords.latitude
-    });
-  });
-          
+
         map.addControl(directions, "top-left");
         const marker = new mapboxgl.Marker().setLngLat(center).addTo(map);
 
@@ -157,7 +203,6 @@
           );
 
           console.log("Detailed Route Details:", detailedRouteDetails);
-         postRouteData(startLocation, endLocation, detailedRouteDetails);
         });
       });
     }
@@ -169,7 +214,7 @@
 
     <!-- Add this button to your HTML file -->
     <div id="arButton">
-      <a href="/app.html" id="startArButton">Start AR</a>
+      <a href="/app.html" id="startArButton" target="_blank">Start AR</a>
     </div>
 
   </body>
