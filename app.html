@@ -282,7 +282,9 @@
                         step_index: index,
                       })
                     );
-                    const endL = ;
+                    const endL = event.route[0].legs[0].steps[
+              event.route[0].legs[0].steps.length - 1
+            ].maneuver.location;
                     // Update localStorage with the fresh route details
                     const data = {
                       startLocation: updatedUserLocation,
