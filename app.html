@@ -87,19 +87,19 @@
 }
           function updateSpheresSize(position,routeData) {
             removeAllEntities();
-              const iEntity = document.createElement("a-entity");
+          //     const iEntity = document.createElement("a-entity");
 
-          iEntity.setAttribute("gps-new-entity-place", {
-            latitude: routeData.startLocation[1],
-            longitude: routeData.startLocation[0],
-          });
+          // iEntity.setAttribute("gps-new-entity-place", {
+          //   latitude: routeData.startLocation[1],
+          //   longitude: routeData.startLocation[0],
+          // });
 
-           iEntity.setAttribute(
-                  "gltf-model",
-                  "url(./assets/models/map_pointer_3d_icon.glb)"
-          );
+          //  iEntity.setAttribute(
+          //         "gltf-model",
+          //         "url(./assets/models/map_pointer_3d_icon.glb)"
+          // );
 
-          document.querySelector("a-scene").appendChild(iEntity);
+          // document.querySelector("a-scene").appendChild(iEntity);
 
             const eEntity = document.createElement("a-entity");
           eEntity.setAttribute("gps-new-entity-place", {
