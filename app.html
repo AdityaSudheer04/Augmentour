@@ -260,10 +260,22 @@
                       e.detail.position.longitude,
                       e.detail.position.latitude,
                     ];
-              const endLocation = [
+                    const endLocation = [
                       routeData1.endLocation[0],
                       routeData1.endLocation[1],
                     ];
+                          map = new mapboxgl.Map({
+                    container: "map",
+                    style: "mapbox://styles/mapbox/streets-v11",
+                    center: center,
+                    zoom: 15,
+                  });
+
+                    map.on("load", function () {
+                    // Move directions initialization inside the map.on callback
+                    directions = new MapboxDirections({
+                      accessToken: mapboxgl.accessToken,
+                    });
 
                     directions.setOrigin(updatedUserLocation);
                     directions.setDestination(endLocation);
