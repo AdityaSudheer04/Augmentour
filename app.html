@@ -54,11 +54,6 @@
             const distance = R * c * 1000 ; // Convert distance to meters
             return distance;
           }
-          // function calculateRotation(start, end) {
-          //   const dLat = end.latitude - start.latitude;
-          //   const dLon = end.longitude - start.longitude;
-          //   return (Math.atan2(dLon, dLat) * 180) / Math.PI;
-          // }
           function calculateRotation(start, end) {
       const dLat = end.latitude - start.latitude;
       const dLon = end.longitude - start.longitude;
@@ -260,7 +255,39 @@
             .querySelector("[gps-new-camera='gpsMinDistance: 2']")
             .addEventListener("gps-camera-update-position", (e) => {
               // When the camera's position updates, update the size of the spheres
-              updateSpheresSize(e.detail.position);
+                    directions.setOrigin(updatedUserLocation);
+                
+                  // Fetch fresh route details from Mapbox Directions API
+                      directions.on('route', function (event) {
+                          const updatedDetailedRouteDetails = event.route[0].legs[0].steps.map(
+                      (step, index) => ({
+                        instruction: step.maneuver.instruction,
+                        distance: step.distance,
+                        duration: step.duration,
+                        location: {
+                          longitude: step.maneuver.location[0],
+                          latitude: step.maneuver.location[1],
+                        },
+                        maneuver: step.maneuver,
+                        geometry: step.geometry,
+                        intersections: step.intersections,
+                        travel_mode: step.travel_mode,
+                        maneuver_type: step.maneuver.type,
+                        step_index: index,
+                      })
+                    );
+                
+                    const endL = event.route[0].legs[0].steps[
+                              event.route[0].legs[0].steps.length - 1
+                            ].maneuver.location;
+                
+                    // Update localStorage with the fresh route details
+                    const data = {
+                      startLocation: updatedUserLocation,
+                      endLocation: endL , // Assuming endLocation is set elsewhere
+                      detailedRouteDetails: updatedDetailedRouteDetails,
+                    };
+                    updateSpheresSize(e.detail.position);
             });
 
           const iEntity = document.createElement("a-entity");
