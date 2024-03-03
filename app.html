@@ -288,6 +288,7 @@
                     ];
                     directions = new MapboxDirections({
                       accessToken: mapboxgl.accessToken,
+                      profile: 'walking'
                     });
                     directions.setOrigin(updatedUserLocation);
                     directions.setDestination(endLocation);
