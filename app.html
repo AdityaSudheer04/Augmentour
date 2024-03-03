@@ -40,6 +40,7 @@
   latitude: routeData1.startLocation[1],
   longitude: routeData1.startLocation[0]
 };
+          let instructionArray = [];
           updateSpheresSize(startLocation,routeData1);
           function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in kilometers
@@ -86,6 +87,33 @@
     scene.removeChild(entity);
   });
 }
+          function shouldDisplayInstruction(currentInstruction, currentDistance) {
+    const prevInstructionObject = instructionArray.find(
+      (obj) => obj.instruction === currentInstruction
+    );
+
+    if (prevInstructionObject) {
+      const prevDistance = prevInstructionObject.distance;
+      // Compare the distance difference
+      if (Math.abs(currentDistance - prevDistance) > 20) {
+        // Update the array with the current distance
+        prevInstructionObject.distance = currentDistance;
+        return true;
+      }
+      else
+      {
+          return false;
+      }
+    } 
+    else
+    {
+      instructionArray.push({
+      instruction: currentInstruction,
+      distance: currentDistance,
+      });
+      return true;
+    }
+  }
           function updateSpheresSize(position,routeData) {
             removeAllEntities();
           //     const iEntity = document.createElement("a-entity");
@@ -163,36 +191,30 @@
                   const rotationEnd = Math.atan2(directionVector.x, directionVector.y) * (180 / Math.PI);
                   poiEntity.setAttribute("rotation", `0 ${rotationEnd} 0`);
                 }
+
+                //Marker Visibility
                 if (distance <= 20) {
                   poiEntity.setAttribute("visible", "true");
                   document.querySelector("a-scene").appendChild(poiEntity);
                 } else {
                   poiEntity.setAttribute("visible", "false");
                 }
+ 
+                //Instruction            
                 if (distance <= 10) {
       const currentInstruction = intersection.instruction;
       const currentDistance = Math.floor(intersection.speechdistance);
-
-      if (
-        currentInstruction !== prevInstruction ||
-        Math.abs(currentDistance - prevDistance) > 20
-      ) {
-        if (currentDistance === 0) {
-          speakInstruction(currentInstruction);
-        } else if (currentInstruction.toLowerCase().startsWith('turn')) {
+      if(currentDistance==0)
+      {
+      speakInstruction(currentInstruction);
+      }
+      else if(shouldDisplayInstruction(currentInstruction, currentDistance)) {
+        if (currentInstruction.toLowerCase().startsWith('turn')) {
           speakInstruction(`${currentInstruction} And Walk For another ${currentDistance} meters`);
         } else {
           speakInstruction(`${currentInstruction} For another ${currentDistance} meters`);
         }
-
-        prevInstruction = currentInstruction;
-        prevDistance = currentDistance;
       }
-
-      poiEntity.setAttribute("visible", "true");
-      document.querySelector("a-scene").appendChild(poiEntity);
-    } else {
-      poiEntity.setAttribute("visible", "false");
     }
 
 
@@ -268,8 +290,6 @@
                   }
                 }
               }
-                
-            
             });
              
           }
