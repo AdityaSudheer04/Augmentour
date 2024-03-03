@@ -166,7 +166,6 @@
         // Move directions initialization inside the map.on callback
         directions = new MapboxDirections({
           accessToken: mapboxgl.accessToken,
-          profile: 'Walking'
         });
 
         map.addControl(directions, "top-left");
