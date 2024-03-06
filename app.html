@@ -217,7 +217,21 @@
         if (currentInstruction.toLowerCase().startsWith('turn')) {
           speakInstruction(`${currentInstruction} And Walk For another ${currentDistance} meters`);
         } else {
-          speakInstruction(`${currentInstruction} For another ${currentDistance} meters`);
+          const updatedInstruction = instruction
+    .replace(/\bnorthwest\b/g, 'straight')
+    .replace(/\bnorth\s*west\b/g, 'straight')
+    .replace( /\beast\b/gi, 'straight')
+    .replace( /\bnorth\b/gi, 'straight')
+    .replace( /\bsouth\b/gi, 'straight')
+    .replace( /\bwest\b/gi, 'straight')      
+    .replace(/\bsouthwest\b/g, 'straight')
+    .replace(/\bsouth\s*west\b/g, 'straight')
+    .replace(/\bsoutheast\b/g, 'straight')
+    .replace(/\bsouth\s*east\b/g, 'straight')
+    .replace(/\bnortheast\b/g, 'straight')
+    .replace(/\bnorth\s*east\b/g, 'straight');
+          const finalInstruction = updatedInstruction.replace(/\bDrive\b/g, 'Walk');
+          speakInstruction(`${finalInstruction} For another ${currentDistance} meters`);
         }
       }
     }
