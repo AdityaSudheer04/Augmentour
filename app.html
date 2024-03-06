@@ -217,7 +217,7 @@
         if (currentInstruction.toLowerCase().startsWith('turn')) {
           speakInstruction(`${currentInstruction} And Walk For another ${currentDistance} meters`);
         } else {
-          const updatedInstruction = instruction
+          const updatedInstruction = currentInstruction
     .replace(/\bnorthwest\b/g, 'straight')
     .replace(/\bnorth\s*west\b/g, 'straight')
     .replace( /\beast\b/gi, 'straight')
