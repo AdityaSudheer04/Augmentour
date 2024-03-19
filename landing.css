@@ -16,7 +16,7 @@ body {
 .container {
   position: relative;
   width: 100%;
-  height: 200vh; /* Adjusted height to ensure visibility */
+  height: 250vh; /* Adjusted height to ensure visibility */
   display: flex;
   justify-content: center;
   align-items: center;
