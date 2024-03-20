@@ -5,9 +5,25 @@ window.onload = () => {
     let testEntityAdded = false;
     let tourGuideAdded = 0;
     let tourGuide;
+    let spoke = 0;
+
 
     let markerLatitude;
     let markerLongitude;
+    
+
+    const model = document.querySelector('a-gltf-model');
+    const camera1 = document.getElementById('main-camera')
+    const camera2 = document.getElementById('model-camera')
+
+// Pause all animations
+// model.components['animation-mixer'].pause();
+
+// Resume all animations
+model.components['animation-mixer'].play();
+
+// Stop all animations
+// model.components['animation-mixer'].stop();
 
     function distance(pointA, pointB){
         return Math.sqrt((pointA[0]-pointB[0])^2 + (pointA[1]-pointB[1])^2);
@@ -28,11 +44,13 @@ window.onload = () => {
         let displacementLongitude = (displacementMeters / (111111 * Math.cos(currentPosition[0] * (Math.PI / 180)))) * normalizedDirection[1];
     
         // Calculate the guide position 2 meters away in the direction of the POI
+        console.log(displacementLatitude);
         let guidePosition = [
-            currentPosition[0] + displacementLatitude,
-            currentPosition[1] + displacementLongitude
+            currentPosition[0] + 0.0003,
+            currentPosition[1] + 0.0003
         ];
-        
+        console.log(currentPosition[0]);
+        console.log(guidePosition[0]);
         return guidePosition;
     }
     
@@ -45,50 +63,7 @@ window.onload = () => {
         });
     }
     
-    function tourGuideCCC(lat, lon){
-        if(tourGuideAdded === 0)
-        {
-                
-            const tourGuideButton = document.getElementById('tour-guide-button');
-            let latitudeGuide;
-            let longitudeGuide;
-            tourGuideButton.addEventListener('click', function() {
-            // navigator.geolocation.getCurrentPosition(function(position) {
-            //     longitudeGuide = position.coords.longitude;
-            //     latitudeGuide = position.coords.latitude;
-            // })
-            // console.log("Button clicked");
-            // console.log(lat);
-            // tourGuide = document.createElement('a-entity');
-            // tourGuide.setAttribute("gltf-model", "url(./assets/models/koala.glb)");
-            // tourGuide.setAttribute('gps-new-entity-place', {
-            //     latitude: lat,
-            //     longitude: lon
-            // });
-
-            // console.log("Entity created");
-
-            // document.querySelector('a-scene').appendChild(tourGuide);
-            // tourGuideAdded += 1;
-            // console.log(tourGuide);
-            // console.log("Entity appended to scene");
-            // console.log(tourGuideAdded);
-            // setTimeout(function(){
-            //     if(tourGuideAdded)
-            //     {
-            //         document.querySelector('a-scene').removeChild(tourGuide);
-                        
-            //         console.log('removed');
-            //     }
-                    
-            //     tourGuideAdded = 0;
-            // }, 10000)
-            });
-
-                
-        }
-
-    }
+   
     const el = document.querySelector("[gps-new-camera]");
 
     
@@ -101,7 +76,7 @@ window.onload = () => {
                 const longitude = e.detail.position.longitude;
 
                 
-                const response = await fetch(`https://api.openstreetmap.org/api/0.6/map?bbox=${longitude - 0.01},${latitude - 0.01},${longitude + 0.01},${latitude + 0.01}`);
+                const response = await fetch(`https://api.openstreetmap.org/api/0.6/map?bbox=${longitude - 0.003},${latitude - 0.003},${longitude + 0.003},${latitude + 0.003}`);
                 const data = await response.text();
 
                 // Parse the XML response from OSM
@@ -158,31 +133,59 @@ window.onload = () => {
                             });
                         }
                     }
-
-                    function processInformationTags(node) {
+                    let info;
+                    async function processInformationTags(node) {
+                        
                         if (node.nodeName === "tag") {
-                            let info;
+                            
+                            
                             Array.from(node.attributes).forEach(attribute => {
                                 if (attribute.nodeName === "k" && attribute.nodeValue === "information") {
+                                    console.log("info set");
                                     info = node.getAttribute("v");
                                 }
                             });
+                            
                             if (info) {
-                                setTimeout(() => { textOverlay.innerHTML = info; }, 3001);
-                                setTimeout(() => {  textOverlay.innerHTML = "";}, 8000);
+                                console.log("display");
+                                setTimeout(() => { textOverlay.innerHTML = ""; }, 3001);
+                                // setTimeout(() => {  textOverlay.innerHTML = "";}, 8000);
+                                console.log("speak");
                                 
+                                  
                             }
                         }
+                        
+
+                        
                     }
                     
                     
                     poiEntity.addEventListener('click', async function() {
+                        
+                        
+                        
                         node.childNodes.forEach(childNode => {
                             processTags(childNode);
-                            processInformationTags(childNode);
+                            console.log(spoke);
+                            
+                            processInformationTags(childNode)
+                            
+                            
+
+                            
+                            
+
                         });
+                        
+                        
+                        
+                         
+                        
+
                         markerLatitude = this.getAttribute('gps-new-entity-place').latitude;
                         markerLongitude =this.getAttribute('gps-new-entity-place').longitude;
+                        
                         
 
                         let tourGuideCoords = await tourGuidePosition(markerLatitude,markerLongitude);
@@ -193,37 +196,57 @@ window.onload = () => {
                         if(tourGuideAdded === 0)
                         {
 
-                        
+                            if(info){
+                                console.log(text);
+                                // if(spoke === 0){
+                                    // spoke+=1;
+                                    let speech = new SpeechSynthesisUtterance(info);
+                                    window.speechSynthesis.speak(speech);
+                                    speech.onend = () => {
+                                        camera2.setAttribute("active","false");
+                                        camera1.setAttribute("active","true");
+                                    }
+
+                                // }
+                            }
+                            
+                            
                             navigator.geolocation.getCurrentPosition(function(position) {
                                 longitudeGuide = position.coords.longitude;
                                 latitudeGuide = position.coords.latitude;
                             })
                             console.log("Button clicked");
-                            console.log(tourGuideCoords[0]);
-                            tourGuide = document.createElement('a-gltf-model');
-                            tourGuide.setAttribute("src", "url(./assets/models/man_in_coat_character.glb)");
+                            // console.log(tourGuideCoords[0]);
+                            // tourGuide = document.createElement('a-gltf-model');
+                            tourGuide.setAttribute("src", "./assets/models/man_one.glb");
                             tourGuide.setAttribute('gps-new-entity-place', {
                                 latitude: tourGuideCoords[0],
                                 longitude: tourGuideCoords[1]
                             });
-                
-                            console.log("Entity created");
+                            tourGuide.setAttribute('scale', '0.05 0.05 0.05');
+                            
+                            // Get reference to the model element
+                            console.log(83);
+                            camera2.setAttribute("active","true");
+                            camera1.setAttribute("active","false")
                 
                             document.querySelector('a-scene').appendChild(tourGuide);
                             tourGuideAdded += 1;
                             console.log(tourGuide);
                             console.log("Entity appended to scene");
                             console.log(tourGuideAdded);
+                            console.log(tourGuide.getAttribute('scale'));
                             setTimeout(function(){
                                 if(tourGuideAdded)
                                 {
                                     document.querySelector('a-scene').removeChild(tourGuide);
-                                        
+                                    
                                     console.log('removed');
                                 }
-                                    
+                                
                                 tourGuideAdded = 0;
                             }, 10000)
+                            
 
                         }
                         setTimeout(() => {
@@ -240,5 +263,3 @@ window.onload = () => {
         }
     });
 };
-
-
