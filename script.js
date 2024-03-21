@@ -96,7 +96,7 @@ model.components['animation-mixer'].play();
                 });
 
                 console.log(nodesWithTargetTag);
-                
+                tourGuideAdded = 0;
                 nodesWithTargetTag.forEach(node => {
                     const poiLatitude = parseFloat(node.getAttribute('lat'));
                     const poiLongitude = parseFloat(node.getAttribute('lon'));
@@ -151,7 +151,7 @@ model.components['animation-mixer'].play();
                                 setTimeout(() => { textOverlay.innerHTML = ""; }, 3001);
                                 // setTimeout(() => {  textOverlay.innerHTML = "";}, 8000);
                                 console.log("speak");
-                                
+                                tourGuideAdded =0;
                                   
                             }
                         }
@@ -206,6 +206,7 @@ model.components['animation-mixer'].play();
                                         camera2.setAttribute("active","false");
                                         camera1.setAttribute("active","true");
                                     }
+                                    console.log(tourGuideAdded);
 
                                 // }
                             }
