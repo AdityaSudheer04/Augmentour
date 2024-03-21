@@ -188,8 +188,8 @@ model.components['animation-mixer'].play();
                         
                         
 
-                        let tourGuideCoords = await tourGuidePosition(markerLatitude,markerLongitude);
-                        console.log(tourGuideCoords[0]);
+                        // let tourGuideCoords = await tourGuidePosition(markerLatitude,markerLongitude);
+                        // console.log(tourGuideCoords[0]);
                         // tourGuideCCC(tourGuideCoords[0], tourGuideCoords[1]);
                         let latitudeGuide;
                         let longitudeGuide;
@@ -217,35 +217,35 @@ model.components['animation-mixer'].play();
                             })
                             console.log("Button clicked");
                             // console.log(tourGuideCoords[0]);
-                            tourGuide = document.createElement('a-gltf-model');
-                            tourGuide.setAttribute("src", "./assets/models/man_one.glb");
-                            tourGuide.setAttribute('gps-new-entity-place', {
-                                latitude: tourGuideCoords[0],
-                                longitude: tourGuideCoords[1]
-                            });
-                            tourGuide.setAttribute('scale', '0.05 0.05 0.05');
+                            // tourGuide = document.createElement('a-gltf-model');
+                            // tourGuide.setAttribute("src", "./assets/models/man_one.glb");
+                            // tourGuide.setAttribute('gps-new-entity-place', {
+                            //     latitude: tourGuideCoords[0],
+                            //     longitude: tourGuideCoords[1]
+                            // });
+                            // tourGuide.setAttribute('scale', '0.05 0.05 0.05');
                             
                             // Get reference to the model element
                             console.log(83);
                             camera2.setAttribute("active","true");
                             camera1.setAttribute("active","false")
                 
-                            document.querySelector('a-scene').appendChild(tourGuide);
+                            // document.querySelector('a-scene').appendChild(tourGuide);
                             tourGuideAdded += 1;
-                            console.log(tourGuide);
+                            // console.log(tourGuide);
                             console.log("Entity appended to scene");
-                            console.log(tourGuideAdded);
-                            console.log(tourGuide.getAttribute('scale'));
-                            setTimeout(function(){
-                                if(tourGuideAdded)
-                                {
-                                    document.querySelector('a-scene').removeChild(tourGuide);
+                            // console.log(tourGuideAdded);
+                            // console.log(tourGuide.getAttribute('scale'));
+                            // setTimeout(function(){
+                            //     if(tourGuideAdded)
+                            //     {
+                            //         document.querySelector('a-scene').removeChild(tourGuide);
                                     
-                                    console.log('removed');
-                                }
+                            //         console.log('removed');
+                            //     }
                                 
-                                tourGuideAdded = 0;
-                            }, 10000)
+                            //     tourGuideAdded = 0;
+                            // }, 10000)
                             
 
                         }
