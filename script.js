@@ -154,7 +154,7 @@ model.components['animation-mixer'].play();
                     }
                     
                     
-                    poiEntity.addEventListener('touch', async function() {
+                    poiEntity.addEventListener('touchstart', async function() {
                         
                         
                         
