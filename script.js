@@ -150,7 +150,7 @@ model.components['animation-mixer'].play();
                                 console.log("display");
                                 setTimeout(() => { textOverlay.innerHTML = ""; }, 3001);
                                 // setTimeout(() => {  textOverlay.innerHTML = "";}, 8000);
-                                console.log("speak");
+                                
                                 tourGuideAdded =0;
                                   
                             }
@@ -200,6 +200,7 @@ model.components['animation-mixer'].play();
                                 console.log(text);
                                 // if(spoke === 0){
                                     // spoke+=1;
+                                    console.log("speaking");
                                     let speech = new SpeechSynthesisUtterance(info);
                                     window.speechSynthesis.speak(speech);
                                     speech.onend = () => {
