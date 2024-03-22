@@ -6,7 +6,7 @@ window.onload = () => {
     let tourGuideAdded = 0;
     let tourGuide;
     let spoke = 0;
-
+    let happened = false;
 
     let markerLatitude;
     let markerLongitude;
@@ -154,9 +154,9 @@ model.components['animation-mixer'].play();
                     }
                     
                     
-                    poiEntity.addEventListener('touchstart', async function() {
-                        
-                        
+                    poiEntity.addEventListener('click', async function() {
+                    if(!happened){
+                        happened = true;
                         
                         node.childNodes.forEach(childNode => {
                             processTags(childNode);
@@ -247,7 +247,9 @@ model.components['animation-mixer'].play();
                         setTimeout(() => {
                             textOverlay.innerHTML = "";
                         }, 3000);
+                    }    
                     });
+                    
                 });
             } catch (error) {
                 console.error("Error fetching and processing OSM data:", error);
