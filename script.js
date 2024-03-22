@@ -178,7 +178,7 @@ model.components['animation-mixer'].play();
 
                         });
                         
-                        
+                        tourGuideAdded =0;
                         
                          
                         
