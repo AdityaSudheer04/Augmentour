@@ -146,14 +146,7 @@ model.components['animation-mixer'].play();
                                 }
                             });
                             
-                            if (info) {
-                                console.log("display");
-                                setTimeout(() => { textOverlay.innerHTML = ""; }, 3001);
-                                // setTimeout(() => {  textOverlay.innerHTML = "";}, 8000);
-                                
-                                tourGuideAdded =0;
-                                  
-                            }
+                            tourGuideAdded = 0;
                         }
                         
 
@@ -161,7 +154,7 @@ model.components['animation-mixer'].play();
                     }
                     
                     
-                    poiEntity.addEventListener('click', async function() {
+                    poiEntity.addEventListener('touch', async function() {
                         
                         
                         
