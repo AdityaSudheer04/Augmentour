@@ -196,7 +196,7 @@ model.components['animation-mixer'].play();
                         if(tourGuideAdded === 0)
                         {
 
-                            if(info && (camera2.getAttribute("active") == "true")){
+                            if(info){
                                 console.log(text);
                                 // if(spoke === 0){
                                     // spoke+=1;
