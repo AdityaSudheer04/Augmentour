@@ -247,6 +247,10 @@ model.components['animation-mixer'].play();
                         setTimeout(() => {
                             textOverlay.innerHTML = "";
                         }, 3000);
+
+                        setTimeout(() => {
+                            happened = false;
+                        }, 2000);
                     }    
                     });
                     
