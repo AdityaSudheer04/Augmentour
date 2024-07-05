@@ -48,7 +48,7 @@ To deploy the app, push the code to your repository and connect it to Vercel for
 
 ### Usage
 
-1. Open the [Augmentour](augmentour.vercel.app) app in your browser.
+1. Open the [Augmentour](https://augmentour.vercel.app) app in your browser.
 2. Explore the AR space: Move your device to find 3D markers for POIs.
 3. Interact with POIs: Click on the markers to see details from the virtual tour guide.
 4. Navigate: Follow the 3D arrows for real-time navigation to your destination.
