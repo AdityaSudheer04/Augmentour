@@ -35,11 +35,9 @@ Make sure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.co
    
 2. **Install dependencies:**
     ```bash
-    Copy code
     npm install
 3. **Start the development server:**
     ```bash
-      Copy code
       npm start
 4. **Open 'http://localhost:3000' in your web browser to view the app.**
 
