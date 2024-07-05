@@ -31,8 +31,8 @@ Make sure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.co
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/augmentour.git
-   cd augmentour
+   git clone https://github.com/Akshay-L-B/Akshay-L-B.github.io.git
+   
 2. **Install dependencies:**
     ```bash
     Copy code
@@ -41,7 +41,7 @@ Make sure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.co
     ```bash
       Copy code
       npm start
-4. ** Open 'http://localhost:3000' in your web browser to view the app.**
+4. **Open 'http://localhost:3000' in your web browser to view the app.**
 
 ### Configuration
 Update the config.js file with your Mapbox API key and any other configuration settings specific to your deployment environment.
